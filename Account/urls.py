@@ -1,8 +1,12 @@
 from django.urls import path
-from Account.views import authenticateUser,getStore,getStores
+from rest_framework.authtoken import views
+
+from Account.views import UserView,UserCreateView
 
 urlpatterns = [
-    path('auth/',authenticateUser, name="authenticateUser"),
-    path('store/',getStores, name="store"),
-    path('store/<int:id>',getStore, name="store_id"),
+    path("",UserView.as_view({"get":"retrieve"}), name="user"),
+    path("sign-out/",UserView.as_view({"post":"create"}), name="user"),
+    path("sign-up/",UserCreateView.as_view({"post":"create"}), name="user_sign_up"),
+    path('auth-user/',views.obtain_auth_token, name="authenticate_user"),
 ]
+

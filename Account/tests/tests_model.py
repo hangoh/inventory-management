@@ -1,34 +1,31 @@
-
-from django.db import IntegrityError
-from Account.models import User
 import unittest
-import factory
-from factory.django import DjangoModelFactory
+from django.db import IntegrityError
+from django.contrib.auth.models import User
 from django.core import exceptions
 
-class UserModelFactory(DjangoModelFactory):
-    class Meta:
-        model = User
-        
-    # The Id will always be the total object count of User + 1, if the Id is not provided
-    id = factory.LazyAttribute(lambda n:User.objects.all().count()+1)
+from Account.tests.factories import UserModelFactory
+
+"""
+Test in This Sequence
+1. python manage.py test Account.tests.tests_model
+2. python manage.py test Store.tests.tests_model
+3. python manage.py test Material.tests.tests_model                   
+"""
 
 class TestUserModel(unittest.TestCase):
-    def test_User_model_creation(self):
-        user_model = UserModelFactory.create(id=1,name="UncleBen")
-        self.assertEqual(user_model.id, 1)
-        self.assertEqual(user_model.name, "UncleBen")
-        self.assertIsInstance(user_model,User)
-    
+    def test_user_creation_success(self):
+        user = User.objects.create_user(username="UncleBen",password="JustPassword")
+        self.assertEqual(user.username,"UncleBen")
+
     def test_user_no_username_error(self):
         with self.assertRaises(exceptions.ValidationError):   
-            instance = UserModelFactory.build()
+            instance = UserModelFactory.build(username="",password="JustPassword")
             instance.full_clean()
 
     
     def test_user_username_not_unique_error(self):
         with self.assertRaises(IntegrityError):
-            UserModelFactory.create(name="UncleBen")
+            UserModelFactory.create(username="UncleBen",password="JustPassword")
             
 
 

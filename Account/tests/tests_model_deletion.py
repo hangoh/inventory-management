@@ -1,5 +1,5 @@
 import unittest
-from Account.models import User
+from django.contrib.auth.models import User
 from Material.models import Store,Material_Stock
 
 """

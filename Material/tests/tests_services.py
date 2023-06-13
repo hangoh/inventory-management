@@ -1,7 +1,7 @@
 from decimal import Decimal
 from rest_framework.test import APITestCase,APIRequestFactory
 from TestSetUp.testsetup import initialAccountStoreSetUp,initialProductSetUp
-from Services.MaterialService.material_services import *
+from Material.services.material_services import list_material_service,list_material_stock_service
 from django.urls import reverse
 from Material.models import Product
 
@@ -11,27 +11,6 @@ class TestMaterialServices(APITestCase):
         initialAccountStoreSetUp(self)
         initialProductSetUp(self)
         self.factory = APIRequestFactory()
-
-    def test_list_product_service_success(self):
-        request = self.factory.get("/",)
-        request.user = self.user
-        response = list_product_service(request, store_id = 1)
-        if response:
-            i=1
-            for r in response:
-                #the product id return in response should be 1 and 2. Refer to initialProductSetUp()
-                self.assertEqual(r.name,Product.objects.get(id=i).name)
-                i+=1
-    
-    def test_list_product_service_no_store_fail(self):
-        request = self.factory.get("/",)
-        request.user = self.user
-        self.assertFalse(list_product_service(request,store_id = 3))
-
-    def test_list_product_service_no_product_fail(self):
-        request = self.factory.get("/",)
-        request.user = self.user
-        self.assertFalse(list_product_service(request,store_id = 2))
         
     def test_list_material_success(self):
         response = list_material_service()
