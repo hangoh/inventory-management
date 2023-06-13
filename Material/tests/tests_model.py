@@ -1,88 +1,31 @@
+import unittest
 from decimal import Decimal
 
-from django.db import IntegrityError
-from Material.models import Material, Material_Quantity,Material_Stock,Product
-import factory
-from factory.django import DjangoModelFactory
-import unittest
-from Account.tests.tests_model import UserModelFactory
-from Account.models import User
-from Material.models import Store
 from django.core import exceptions
+from django.db import IntegrityError
+
+from Material.tests.factories import MaterialFactory
+from Store.models import Store,Product
+from Material.models import Material_Stock,Material,Material_Quantity
+from Material.tests.factories import MaterialStockFactory,MaterialQuantityFactory
+
+
+"""
+Test in This Sequence
+1. python manage.py test Account.tests.tests_model
+2. python manage.py test Store.tests.tests_model
+3. python manage.py test Material.tests.tests_model                  
+"""
 
 # Create your tests here.
-class ProductFactory(DjangoModelFactory):
-    class Meta:
-        model = Product
-    
-    # The Id will always be the total object count of Product + 1, if the Id is not provided
-    id = factory.LazyAttribute(lambda n:Product.objects.all().count()+1)
-    name = ""
-
-
-class StoreFactory(DjangoModelFactory):
-    class Meta:
-        model = Store
-    
-    # The Id will always be the total object count of Product + 1, if the Id is not provided
-    store_id = factory.LazyAttribute(lambda n:Store.objects.all().count()+1)
-    store_name = ""
-    user = factory.SubFactory(UserModelFactory)
-
-
-    #Required for many to many relationship field
-    @factory.post_generation
-    def products(self,create,extrated,**kwargs):
-        if not create:
-            return
-        if extrated:
-            for product in extrated:
-                self.products.add(product)
-
-class MaterialFactory(DjangoModelFactory):
-    class Meta:
-        model = Material
-
-    # The Id will always be the total object count of Material + 1, if the Id is not provided
-    material_id = factory.LazyAttribute(lambda n:Material.objects.all().count()+1)
-    price = 2.00
-    name = ""
-
-class MaterialQuantityFactory(DjangoModelFactory):
-    class Meta:
-        model = Material_Quantity
-
-    # The Id will always be the total object count of Material Quantity + 1, if the Id is not provided
-    id = factory.LazyAttribute(lambda n:Material_Quantity.objects.all().count()+1)
-    quantity = 10
-    product = factory.SubFactory(ProductFactory)
-    ingredient = factory.SubFactory(MaterialFactory)
-
-class MaterialStockFactory(DjangoModelFactory):
-    class Meta:
-        model = Material_Stock
-
-    # The Id will always be the total object count of Material Stock + 1, if the Id is not provided
-    id = factory.LazyAttribute(lambda n:Material_Stock.objects.all().count()+1)
-    material = factory.SubFactory(MaterialFactory)
-    store = factory.SubFactory(StoreFactory)
-    max_capacity = 100
-    current_capacity = 50
-
-
-"""
-//////////////////////
-Test Factories Section
-//////////////////////
-"""
-
 class TestMaterialFactory(unittest.TestCase):
     def test_Material_creation(self):
-        material = MaterialFactory.create(material_id=1,price=2.30,name='plastic')
+        store = Store.objects.get(store_id=1)
+        material = MaterialFactory.create(material_id=1,price=2.30,name='plastic',store=store)
         self.assertEqual(material.material_id, 1)
         self.assertEqual(material.price,2.30)
         self.assertEqual(material.name,"plastic")
-        material = MaterialFactory.create(price=2.00,name="steel")
+        material = MaterialFactory.create(price=2.00,name="steel",store=store)
         self.assertEqual(material.material_id, 2)
         self.assertEqual(material.price,2.00)
         self.assertEqual(material.name,"steel")
@@ -97,36 +40,79 @@ class TestMaterialFactory(unittest.TestCase):
             instance = MaterialFactory.build(material_id=5,price=2)
             instance.full_clean()
 
-class TestProductFactory(unittest.TestCase):
-    def test_product_creation(self):
-        product = ProductFactory.create(name="chair" )
-        # product of id=1 should have name="chair"
-        self.assertEqual(product.id,1)
-        self.assertEqual(product.name,"chair")
-    
-    def test_product_no_name_error(self):
+class TestMaterialStockFactory(unittest.TestCase):
+    def test_material_stock_creation(self):
+        self.material_factory = Material.objects.get(material_id=1)
+        self.store = Store.objects.get(store_id=1)
+       
+        material_stock = MaterialStockFactory.create(material = self.material_factory,store=self.store)
+        self.assertEqual(material_stock.id,1)
+        self.assertEqual(material_stock.max_capacity,100)
+        self.assertEqual(material_stock.current_capacity,50)
+        self.assertEqual(material_stock.material,self.material_factory)
+        self.assertEqual(material_stock.store.store_id,self.store.store_id)
+       
+    #Test To Get The Material Stock Object with Id And Also 
+    #Tends To Get The Material Objects Which Has A Relation Mapping Through
+    #The Id Obtain From The Material Stock Object And Test If The Value Are 
+    #As Expected
+
+    def test_material_stock_get(self):
+        m_s = Material_Stock.objects.get(id=1)
+        m = Material.objects.get(material_id = m_s.material.material_id)
+        # material of id=1 should have price = 2.30 and name = "plastic"
+        self.assertEqual(m.price,Decimal("2.30"))
+        self.assertEqual(m.name, "plastic") 
+        # material_stock of id=1 should have current_capacity = 50,
+        # max_capacity=100 and the material object in material 
+        # should have material_id of 1
+        self.assertEqual(m_s.id,1)
+        self.assertEqual(m_s.current_capacity,50)
+        self.assertEqual(m_s.max_capacity,100)
+        self.assertEqual(m_s.material.material_id,1)
+
+    def test_material_stock_current_capacity_not_positive_error(self):
         with self.assertRaises(exceptions.ValidationError):
-            instance =  ProductFactory.build()
+            instance = MaterialStockFactory.build(max_capacity=100 ,current_capacity=-120)
             instance.full_clean()
 
-
-class TestStoreFactory(unittest.TestCase):
-    def test_store_creation(self):
-        self.user = User.objects.get(id=1)
-        self.all_products =[]
-        #will return as query
-        self.products = Product.objects.all()
-        #append all objects into array
-        for p in self. products:
-            self.all_products.append(p)
-        store = StoreFactory.create(store_name = "Just_A_Store", user = self.user , products=self.all_products)
-        self.assertEqual(store.products.count(),1)
-        self.assertEqual(store.store_name,"Just_A_Store")
-
-    def test_store_no_name_error(self):
+    def test_material_stock_max_capacity_not_positive_error(self):
         with self.assertRaises(exceptions.ValidationError):
-            instance = StoreFactory.build()
+            instance = MaterialStockFactory.build(max_capacity=-100 ,current_capacity=20)
             instance.full_clean()
 
+class TestMaterialQuantityFactory(unittest.TestCase):
+    def test_material_quantity_creation(self):
+        self.material_factory = Material.objects.get(material_id=1)
+        self.product = Product.objects.get(id=1)
+        material_quantity = MaterialQuantityFactory.create(quantity=55,ingredient = self.material_factory,product=self.product)
+        self.assertEqual(material_quantity.id,1)
+        self.assertEqual(material_quantity.quantity,55)
+        self.assertEqual(material_quantity.ingredient,self.material_factory)
+        self.assertEqual(material_quantity.product.name,self.product.name)
 
+    #Test To Get The Material Quantity Object with Id And Also 
+    #Tends To Get The Material Objects Which Has A Relation Mapping Through
+    #The Id Obtain From The Material Quantity Object And Test If The Value Are 
+    #As Expected
 
+    def test_material_quantity_get(self):
+        m_q = Material_Quantity.objects.get(id=1)
+        m = Material.objects.get(material_id = m_q.ingredient.material_id)
+        p = Product.objects.get(id = m_q.product.id)
+        # material of id=1 should have price = 2.3 and name = "plastic"
+        self.assertEqual(m.price,Decimal("2.30"))
+        self.assertEqual(m.name, "plastic") 
+        # product of id=1 should name = "chair"
+        self.assertEqual(p.name, "chair") 
+        # material_quantity of id=1 should have quantity=55
+        # and the material object in ingredient should have material_id of 1
+        self.assertEqual(m_q.id,1)
+        self.assertEqual(m_q.quantity,55)
+        self.assertEqual(m_q.ingredient.material_id,m.material_id)
+        self.assertEqual(m_q.product.name,p.name)
+
+    def test_material_quantity_not_positive_error(self):
+        with self.assertRaises(exceptions.ValidationError):
+            instance = MaterialQuantityFactory.build(quantity=-55)
+            instance.full_clean()

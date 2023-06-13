@@ -1,45 +1,72 @@
-from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
-from Material.models import Material_Stock
 from rest_framework import status
 from rest_framework.response import Response
-from Services.MaterialService.material_services import *
-from Serializer.MaterialSerializer.MaterialSerializer import MaterialStockSerializer,ProductSerializer,MaterialSerializer
+from rest_framework.viewsets import ModelViewSet
+
+from Material.models import Material_Stock,Material
+from Material.services.material_services import list_material_service,list_material_stock_service,update_material_service,delete_material_service,update_max_capacity_service,delete_material_stock_service
+from Material.serializer.MaterialSerializer import MaterialStockSerializer,MaterialSerializer
+
 # Create your views here.
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def list_products(request,store_id):
-    product = list_product_service(request,store_id)
-    if not product:
-        return Response({"error":"No Product"},
-                        status=status.HTTP_404_NOT_FOUND)
-    product_serialize = ProductSerializer(product,many=True)
-    return Response(product_serialize.data, 
-                    status = status.HTTP_200_OK)
+class MaterialView(ModelViewSet):
+    queryset = Material.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = MaterialSerializer
+
+    def retrieve(self,request,store_id):
+        material = list_material_service(request,store_id)
+        if not material:
+            return Response({"error":"No Material Found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response(MaterialSerializer(material,many=True).data,
+                        status=status.HTTP_200_OK)
+    
+    def update(self,request,store_id,material_id):
+        material = update_material_service(request,store_id,material_id)
+        if not material:
+            return Response({"error":"No Material Found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response(MaterialSerializer(material,many=True).data,
+                        status=status.HTTP_200_OK)
+    
+    def destroy(self,request,store_id,material_id):
+        material = delete_material_service(request,store_id,material_id)
+        if not material:
+            return Response({"error":"No Material Found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response({"response":"Delete Material Successfully"},
+                        status=status.HTTP_200_OK)
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def list_material(request):
-    material = list_material_service()
-    if not material:
-        return Response({"error":"No Material Found"},
-                        status=status.HTTP_404_NOT_FOUND)
-    material_serializer = MaterialSerializer(material,many=True)
-    return Response(material_serializer.data,
-                    status=status.HTTP_200_OK)
+class MaterialStockView(ModelViewSet):
+    queryset = Material_Stock.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = MaterialStockSerializer
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def list_material_stock(request,store_id):
-    inventory = list_material_stock_service
-    if not inventory:
-        return Response({"error":"Inventory Empty"},
-                        status=status.HTTP_404_NOT_FOUND)
-    inventory_serialize = MaterialStockSerializer(inventory, many=True)
-    return Response(inventory_serialize.data,
-                     status = status.HTTP_200_OK)
+    def retrieve(self,request,store_id):
+        material_stock = list_material_stock_service(request,store_id)
+        if not material_stock:
+            return Response({"error":"Inventory Empty"},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response(MaterialStockSerializer(material_stock, many=True).data,
+                        status = status.HTTP_200_OK)
+
+    def update(self, request,store_id,material_stock_id):
+        material_stock = update_max_capacity_service(request,store_id,material_stock_id)
+        if not material_stock:
+            return Response({"error":"Inventory Empty"},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response(MaterialStockSerializer(material_stock, many=True).data,
+                        status = status.HTTP_200_OK)
+    
+    def destroy(self, request,store_id,material_stock_id):
+        material_stock = delete_material_stock_service(request,store_id,material_stock_id)
+        if not material_stock:
+            return Response({"error":"No Inventory Found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response({"response":"Delete Inventory Successfully"},
+                        status=status.HTTP_200_OK)
 
 
 
