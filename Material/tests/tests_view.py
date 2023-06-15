@@ -19,7 +19,7 @@ class TestMaterialView(APITestCase):
     """
 
     def test_material_view_create(self):
-        url = reverse("list_material")
+        url = reverse("listmaterial")
         request = self.factory.post(url, data={"name":"glass","price":14.30})
         view  = MaterialView.as_view({"post":"create"})
         force_authenticate(request,user=self.user)
@@ -28,7 +28,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data["price"], "14.30")
     
     def test_material_view_list(self):
-        url = reverse("list_material")
+        url = reverse("listmaterial")
         request = self.factory.get(url)
         view  = MaterialView.as_view({"get":"retrieve"})
         force_authenticate(request,user=self.user)
@@ -82,7 +82,7 @@ class TestMaterialView(APITestCase):
     """
 
     def test_material_stock_view_create(self):
-        url = reverse('create_material_stock',kwargs={"store_id":1,"material_id":1})
+        url = reverse('creatematerialstock',kwargs={"store_id":1,"material_id":1})
         request = self.factory.post(url, data={"current_capacity":100,"max_capacity":250})
         view = MaterialStockView.as_view({"post":"create"})
         force_authenticate(request,self.user)
@@ -91,7 +91,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data["max_capacity"],250)
 
     def test_material_stock_view_create_fail(self):
-        url = reverse('create_material_stock',kwargs={"store_id":1,"material_id":1})
+        url = reverse('creatematerialstock',kwargs={"store_id":1,"material_id":1})
         request = self.factory.post(url, data={"current_capacity":100,"max_capacity":250})
         view = MaterialStockView.as_view({"post":"create"})
         force_authenticate(request,self.user)
@@ -99,7 +99,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code,status.HTTP_400_BAD_REQUEST)
 
     def test_material_stock_view_list(self):
-        url = reverse('list_material_stock',kwargs={"store_id":1})
+        url = reverse('listmaterialstock',kwargs={"store_id":1})
         request = self.factory.get(url)
         view = MaterialStockView.as_view({"get":"retrieve"})
         force_authenticate(request,user=self.user)
@@ -108,7 +108,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(len(response.data),2)
     
     def test_material_stock_view_list_fail(self):
-        url = reverse('list_material_stock',kwargs={"store_id":2})
+        url = reverse('listmaterialstock',kwargs={"store_id":2})
         request = self.factory.get(url)
         view = MaterialStockView.as_view({"get":"retrieve"})
         force_authenticate(request,user=self.user)
@@ -116,7 +116,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_material_stock_view_max_capacity_update(self):
-        url = reverse('material_stock',kwargs={"store_id":1,"material_stock_id":1})
+        url = reverse('materialstock',kwargs={"store_id":1,"material_stock_id":1})
         request = self.factory.put(url, data={"max_capacity":250})
         view = MaterialStockView.as_view({"put":"update"})
         force_authenticate(request,self.user)
@@ -125,7 +125,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data["max_capacity"],250)
         
     def test_material_stock_view_max_capacity_update_fail(self):
-        url = reverse('material_stock',kwargs={"store_id":1,"material_stock_id":3})
+        url = reverse('materialstock',kwargs={"store_id":1,"material_stock_id":3})
         request = self.factory.put(url, data={"max_capacity":250})
         view = MaterialStockView.as_view({"put":"update"})
         force_authenticate(request,self.user)
@@ -133,7 +133,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_material_stock_view_delete(self):
-        url = reverse('material_stock',kwargs={"store_id":1,"material_stock_id":1})
+        url = reverse('materialstock',kwargs={"store_id":1,"material_stock_id":1})
         request = self.factory.delete(url)
         view = MaterialStockView.as_view({"delete":"destroy"})
         force_authenticate(request,self.user)
@@ -141,7 +141,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
     def test_material_stock_view_delete_fail(self):
-        url = reverse('material_stock',kwargs={"store_id":1,"material_stock_id":1})
+        url = reverse('materialstock',kwargs={"store_id":1,"material_stock_id":1})
         request = self.factory.delete(url)
         view = MaterialStockView.as_view({"delete":"destroy"})
         force_authenticate(request,self.user2)
@@ -153,7 +153,7 @@ class TestMaterialView(APITestCase):
     """
     
     def test_material_quantity_view_list(self):
-        url = reverse('list_material_quantity', kwargs={"store_id":1,"product_id":1})
+        url = reverse('listmaterialquantity', kwargs={"store_id":1,"product_id":1})
         request = self.factory.get(url)
         view = MaterialQuantityView.as_view({"get":"retrieve"})
         force_authenticate(request,user = self.user)
@@ -164,7 +164,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data[0]["product"]["name"],"Chair")
     
     def test_material_quantity_view_list_fail(self):
-        url = reverse('list_material_quantity', kwargs={"store_id":2,"product_id":1})
+        url = reverse('listmaterialquantity', kwargs={"store_id":2,"product_id":1})
         request = self.factory.get(url)
         view = MaterialQuantityView.as_view({"get":"retrieve"})
         force_authenticate(request,user = self.user)
@@ -172,7 +172,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code,status.HTTP_404_NOT_FOUND)
 
     def test_material_quantity_view_create(self):
-        url = reverse("create_material_quantity", kwargs={"store_id":1,"product_id":1,"material_id":3})
+        url = reverse("creatematerialquantity", kwargs={"store_id":1,"product_id":1,"material_id":3})
         request = self.factory.post(url, data={"quantity":7})
         view = MaterialQuantityView.as_view({"post":"create"})
         force_authenticate(request, user= self.user)
@@ -183,7 +183,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data["product"]["name"],"Chair")
     
     def test_material_quantity_view_create_fail(self):
-        url = reverse("create_material_quantity", kwargs={"store_id":2,"product_id":1,"material_id":3})
+        url = reverse("creatematerialquantity", kwargs={"store_id":2,"product_id":1,"material_id":3})
         request = self.factory.post(url, data={"quantity":7})
         view = MaterialQuantityView.as_view({"post":"create"})
         force_authenticate(request, user= self.user)
@@ -191,7 +191,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code,status.HTTP_400_BAD_REQUEST)
 
     def test_material_quantity_view_update(self):
-        url = reverse("material_quantity", kwargs={"store_id":2,"product_id":1,"material_id":3,"material_quantity_id":1})
+        url = reverse("materialquantity", kwargs={"store_id":2,"product_id":1,"material_id":3,"material_quantity_id":1})
         request = self.factory.put(url, data={"quantity":7})
         view = MaterialQuantityView.as_view({"put":"update"})
         force_authenticate(request, user= self.user)
@@ -201,7 +201,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data["product"]["name"],"Chair")
 
     def test_material_quantity_view_update_fail(self):
-        url = reverse("material_quantity", kwargs={"store_id":2,"product_id":1,"material_id":3,"material_quantity_id":1})
+        url = reverse("materialquantity", kwargs={"store_id":2,"product_id":1,"material_id":3,"material_quantity_id":1})
         request = self.factory.put(url, data={"quantity":7})
         view = MaterialQuantityView.as_view({"put":"update"})
         force_authenticate(request, user= self.user)
@@ -209,7 +209,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code,status.HTTP_400_BAD_REQUEST)
 
     def test_material_quantity_view_delete(self):
-        url = reverse("material_quantity", kwargs={"store_id":1,"product_id":1,"material_id":1,"material_quantity_id":1})
+        url = reverse("materialquantity", kwargs={"store_id":1,"product_id":1,"material_id":1,"material_quantity_id":1})
         request = self.factory.delete(url, data={"quantity":7})
         view = MaterialQuantityView.as_view({"delete":"destroy"})
         force_authenticate(request, user= self.user)
@@ -217,7 +217,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code,status.HTTP_200_OK)
     
     def test_material_quantity_view_delete_fail(self):
-        url = reverse("material_quantity", kwargs={"store_id":2,"product_id":3,"material_id":1,"material_quantity_id":1})
+        url = reverse("materialquantity", kwargs={"store_id":2,"product_id":3,"material_id":1,"material_quantity_id":1})
         request = self.factory.delete(url, data={"quantity":7})
         view = MaterialQuantityView.as_view({"delete":"destroy"})
         force_authenticate(request, user= self.user)

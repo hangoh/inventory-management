@@ -20,7 +20,7 @@ class TestMaterialView(APITestCase):
     Starting Section for StoreView
     """
     def test_getStores_success(self):
-        url=reverse("list_stores")
+        url=reverse("liststores")
         user = User.objects.get(id=1)
         request = self.factory.get(url)
         view = StoreView.as_view({"get":"retrieve"})
@@ -35,7 +35,7 @@ class TestMaterialView(APITestCase):
             i+=1
 
     def test_getStores_no_store_fail(self):
-        url=reverse("list_stores")
+        url=reverse("liststores")
         user = User.objects.get(id=3)
         request = self.factory.get(url)
         view = StoreView.as_view({"get":"retrieve"})
@@ -44,7 +44,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_getStores_unauthorized_fail(self):
-        url=reverse("list_stores")
+        url=reverse("liststores")
         request = self.factory.get(url)
         view = StoreView.as_view({"get":"retrieve"})
         force_authenticate(request)
@@ -126,7 +126,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     def test_create_store(self):
-        url = reverse("list_stores")
+        url = reverse("liststores")
         request = self.factory.post(url, data={"store_name":"Test_Name"})
         view = StoreView.as_view({"post":"create"})
         force_authenticate(request,user = User.objects.get(id=1))
@@ -135,7 +135,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data["store_name"], "Test_Name")
     
     def test_create_store_fail(self):
-        url = reverse("list_stores")
+        url = reverse("liststores")
         request = self.factory.post(url, data={"store_name":"UncleBen'S"})
         view = StoreView.as_view({"post":"create"})
         force_authenticate(request,user = User.objects.get(id=1))
@@ -151,7 +151,7 @@ class TestMaterialView(APITestCase):
     """
     
     def test_list_product_view_success(self):
-        url = reverse("list_products",kwargs={"store_id":1})
+        url = reverse("listproducts",kwargs={"store_id":1})
         user = User.objects.get(id=1)
         view = ProductView.as_view({"get":"retrieve"})
         request = self.factory.get(url)
@@ -165,7 +165,7 @@ class TestMaterialView(APITestCase):
             i+=1
     
     def test_list_product_view_fail(self):
-        url = reverse("list_products",kwargs={"store_id":2})
+        url = reverse("listproducts",kwargs={"store_id":2})
         user = User.objects.get(id=1)
         view = ProductView.as_view({"get":"retrieve"})
         request = self.factory.get(url)
@@ -212,7 +212,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_product(self):
-        url = reverse("list_products",kwargs={"store_id":1})
+        url = reverse("listproducts",kwargs={"store_id":1})
         user = User.objects.get(id=1)
         view = ProductView.as_view({"post":"create"})
         request = self.factory.post(url,data={"name":"Bed"})
@@ -222,7 +222,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data["name"],"Bed")
     
     def test_create_product_fail(self):
-        url = reverse("list_products",kwargs={"store_id":1})
+        url = reverse("listproducts",kwargs={"store_id":1})
         user = User.objects.get(id=1)
         view = ProductView.as_view({"post":"create"})
         request = self.factory.post(url,data={"name":"Chair"})
