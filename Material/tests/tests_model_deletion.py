@@ -1,5 +1,5 @@
 import unittest
-from Material.models import Product,Material_Quantity,Material
+from Material.models import Product,MaterialQuantity,Material
 
 """
 Please proceed to this test after testing for
@@ -15,7 +15,7 @@ class TestProductDeletion(unittest.TestCase):
         self.assertFalse(Product.objects.filter(id=1).exists())
         # Product with id 1 is associate with Material_Quantity id 1. 
         # Removing Product should also remove Material_Quantity
-        self.assertFalse(Material_Quantity.objects.filter(id=1).exists())
+        self.assertFalse(MaterialQuantity.objects.filter(id=1).exists())
     
 
     def test_material_deletion(self):

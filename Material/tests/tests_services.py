@@ -1,9 +1,14 @@
 from decimal import Decimal
 from rest_framework.test import APITestCase,APIRequestFactory
+
 from TestSetUp.testsetup import initialAccountStoreSetUp,initialProductSetUp
-from Material.services.material_services import list_material_service,list_material_stock_service
-from django.urls import reverse
-from Material.models import Product
+from Material.services.material_services import (list_material_service, create_material_service, update_material_service, 
+                                                 delete_material_service,
+                                                 list_material_stock_service, create_material_stock_service, update_max_capacity_service,
+                                                 delete_material_stock_service,
+                                                 list_material_quantity_service,create_material_quantity_service,update_material_quantity_service,
+                                                 delete_material_quantity_service)
+
 
 class TestMaterialServices(APITestCase):
     def setUp(self):
@@ -12,6 +17,9 @@ class TestMaterialServices(APITestCase):
         initialProductSetUp(self)
         self.factory = APIRequestFactory()
         
+    """
+    Material Services Test
+    """
     def test_list_material_success(self):
         response = list_material_service()
         expected_result_array = [
@@ -25,6 +33,35 @@ class TestMaterialServices(APITestCase):
             self.assertEqual(r.price,expected_result_array[i]["price"])
             self.assertEqual(r.name,expected_result_array[i]["name"])
             i+=1
+
+    def test_create_material(self):
+        request = self.factory.post('/')
+        request.data = {"name":"silver","price":150.00}
+        response = create_material_service(request)
+        self.assertEqual(response.name,"silver")
+        self.assertEqual(response.price, Decimal("150.00"))
+
+    def test_update_material(self):
+        request = self.factory.put('/')
+        request.data = {"name":"wood","price":4.00}
+        response = update_material_service(request,material_id=1)
+        self.assertEqual(response.name,"wood")
+        self.assertEqual(response.price, Decimal("4.00"))
+    
+    def test_update_material_fail(self):
+        request = self.factory.put('/')
+        request.data = {"name":"wood","price":4.00}
+        self.assertFalse(update_material_service(request,material_id=4))
+
+    def test_delete_material(self):
+        self.assertTrue(delete_material_service(material_id=1))
+    
+    def test_delete_material_fail(self):
+        self.assertFalse(delete_material_service(material_id=4))
+
+    """
+    Material Stock Services Test
+    """
 
     def test_list_material_stock_service_success(self):
         request = self.factory.get("/",)
@@ -75,5 +112,94 @@ class TestMaterialServices(APITestCase):
         request = self.factory.get("/",)
         request.user = self.user3
         self.assertFalse(list_material_stock_service(request,4))
+
+    def test_create_material_stock(self):
+        request = self.factory.post("/")
+        request.user = self.user2
+        request.data={"current_capacity":200,"max_capacity":400}
+        response  = create_material_stock_service(request,store_id=3,material_id=1)
+        self.assertEqual(response.current_capacity,200)
+        self.assertEqual(response.max_capacity,400)
+    
+    def test_create_material_stock_fail(self):
+        request = self.factory.post("/")
+        request.user = self.user3
+        request.data={"current_capacity":200,"max_capacity":400}
+        self.assertFalse( create_material_stock_service(request,store_id=3,material_id=4))
+
+    def test_update_max_capacity(self):
+        request = self.factory.put("/")
+        request.user = self.user
+        request.data={"max_capacity":400}
+        response = update_max_capacity_service(request,store_id=1,material_stock_id=1)
+        self.assertEqual(response.max_capacity,400)
+    
+    def test_update_max_capacity_fail(self):
+        request = self.factory.put("/")
+        request.user = self.user
+        request.data={"max_capacity":400}
+        self.assertFalse(update_max_capacity_service(request,store_id=3,material_stock_id=1))
+
+    def test_delete_material_stock(self):
+        request = self.factory.delete("/")
+        request.user = self.user
+        self.assertTrue(delete_material_stock_service(request,store_id=1,material_stock_id=1))
         
-       
+    def test_delete_material_stock_fail(self):
+        request = self.factory.delete("/")
+        request.user = self.user
+        self.assertFalse(delete_material_stock_service(request,store_id=1,material_stock_id=3))
+        
+
+    """
+    Material Quantity Services Test
+    """
+    
+    def test_create_material_quantity(self):
+        request = self.factory.put("/")
+        request.user = self.user2
+        request.data={"quantity":2}
+        response = create_material_quantity_service(request,store_id=3,material_id=1,product_id=1)
+        self.assertEqual(response.quantity,2)
+    
+    def test_create_material_quantity_fail(self):
+        request = self.factory.put("/")
+        request.user = self.user2
+        request.data={"quantity":2}
+        self.assertFalse(create_material_quantity_service(request,store_id=1,material_id=1,product_id=1))
+
+    def test_update_material_quantity(self):
+        request = self.factory.post("/")
+        request.user = self.user
+        request.data={"quantity":6}
+        response = update_material_quantity_service(request,store_id=1,material_id=1,product_id=1, material_quantity_id=1)
+        self.assertEqual(response.quantity,6)
+    
+    def test_update_material_quantity_fail(self):
+        request = self.factory.post("/")
+        request.user = self.user
+        request.data={"quantity":6}
+        self.assertFalse(update_material_quantity_service(request,store_id=1,material_id=1,product_id=1, material_quantity_id=3))
+        
+
+    def test_list_material_quantity(self):
+        request = self.factory.get("/")
+        request.user = self.user
+        response = list_material_quantity_service(request,store_id=1,product_id=1)
+        self.assertEqual(len(response),2)
+
+    def test_list_material_quantity_fail(self):
+        request = self.factory.get("/")
+        request.user = self.user
+        self.assertFalse(list_material_quantity_service(request,store_id=3,product_id=1))
+
+    def test_delete_material_quantity(self):
+        request = self.factory.delete("/")
+        request.user = self.user
+        self.assertTrue(delete_material_quantity_service(request,store_id=1,material_id=1,product_id=1, material_quantity_id=1))
+    
+    def test_delete_material_quantity_fail(self):
+        request = self.factory.delete("/")
+        request.user = self.user
+        self.assertFalse(delete_material_quantity_service(request,store_id=3,material_id=1,product_id=1, material_quantity_id=1))
+        

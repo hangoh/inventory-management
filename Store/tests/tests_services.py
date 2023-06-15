@@ -5,7 +5,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 
 from TestSetUp.testsetup import initialAccountStoreSetUp,initialProductSetUp
-from Store.services.store_services import get_store_service,get_stores_service,list_product_service,update_store_name_service,delete_store_service,update_product_name_service,delete_product_service
+from Store.services.store_services import( get_store_service, get_stores_service, list_product_service,
+                                          update_store_name_service, delete_store_service, update_product_name_service, 
+                                          delete_product_service, create_store, create_product)
 from Store.models import Product
 
 class TestStoreServices(APITestCase):
@@ -14,6 +16,10 @@ class TestStoreServices(APITestCase):
         initialAccountStoreSetUp(self)
         initialProductSetUp(self)
         self.factory = APIRequestFactory()
+
+    """
+    Store Services Test
+    """
 
     def test_get_stores_success(self):
         user = User.objects.get(id=1)
@@ -35,9 +41,13 @@ class TestStoreServices(APITestCase):
         user = User.objects.get(id=3)
         self.assertFalse(get_store_service(user,1))
 
-    """
-    POST Store test here
-    """
+    def test_create_store(self):
+        user = User.objects.get(id=1)
+        request = self.factory.post('/')
+        request.data={"store_name":"Testing_store_name"}
+        request.user = user
+        response = create_store(request)
+        self.assertEqual(response.store_name,"Testing_store_name")
 
     def test_update_store_name(self):
         request = self.factory.post("/")
@@ -62,6 +72,10 @@ class TestStoreServices(APITestCase):
         request.user = self.user
         self.assertFalse(delete_store_service(request=request, store_id=3))
 
+    """
+    Product Services Test
+    """
+
     def test_list_product_service_success(self):
         request = self.factory.get("/",)
         request.user = self.user
@@ -83,9 +97,20 @@ class TestStoreServices(APITestCase):
         request.user = self.user
         self.assertFalse(list_product_service(request,store_id = 2))
 
-    """
-    POST product test here
-    """
+    def test_create_product(self):
+        user = User.objects.get(id=1)
+        request = self.factory.post('/')
+        request.user = user
+        request.data={"name":"Bed"}
+        response = create_product(request,store_id=1)
+        self.assertEqual(response.name,"Bed")
+    
+    def test_create_product_fail(self):
+        user = User.objects.get(id=1)
+        request = self.factory.post('/')
+        request.user = user
+        request.data={"name":"Bed"}
+        self.assertFalse(create_product(request,store_id=3))
 
     def test_update_product_name(self):
         request = self.factory.post("/")

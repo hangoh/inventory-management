@@ -1,10 +1,12 @@
 from rest_framework.test import APIRequestFactory,APITestCase,force_authenticate
-from TestSetUp.testsetup import initialAccountStoreSetUp,initialProductSetUp
-from django.urls import reverse
-from Store.views import ProductView,StoreView
-from django.contrib.auth.models import User
-from Store.models import Product,Store
 from rest_framework import status
+from django.urls import reverse
+from django.contrib.auth.models import User
+
+from TestSetUp.testsetup import initialAccountStoreSetUp,initialProductSetUp
+from Store.views import ProductView,StoreView
+from Store.models import Product,Store
+
 
 class TestMaterialView(APITestCase):
     def setUp(self):
@@ -104,7 +106,7 @@ class TestMaterialView(APITestCase):
         response = view(request,store_id =4)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_delete_store(self):
+    def test_destroy_store(self):
         url = reverse("store",kwargs={"store_id":1})
         request = self.factory.delete(url)
         user = User.objects.get(id=1)
@@ -113,13 +115,30 @@ class TestMaterialView(APITestCase):
         response = view(request,store_id =1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-    def test_delete_store_fail(self):
+    def test_destroy_store_fail(self):
         url = reverse("store",kwargs={"store_id":1})
         request = self.factory.delete(url)
         user = User.objects.get(id=1)
         view = StoreView.as_view({"delete":"destroy"})
         force_authenticate(request,user=user)
         response = view(request,store_id = 3)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_create_store(self):
+        url = reverse("list_stores")
+        request = self.factory.post(url, data={"store_name":"Test_Name"})
+        view = StoreView.as_view({"post":"create"})
+        force_authenticate(request,user = User.objects.get(id=1))
+        response = view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["store_name"], "Test_Name")
+    
+    def test_create_store_fail(self):
+        url = reverse("list_stores")
+        request = self.factory.post(url, data={"store_name":"UncleBen'S"})
+        view = StoreView.as_view({"post":"create"})
+        force_authenticate(request,user = User.objects.get(id=1))
+        response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     """
@@ -190,6 +209,27 @@ class TestMaterialView(APITestCase):
         force_authenticate(request,user=user)
         response = view(request,store_id=1,product_id = 3)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_product(self):
+        url = reverse("list_products",kwargs={"store_id":1})
+        user = User.objects.get(id=1)
+        view = ProductView.as_view({"post":"create"})
+        request = self.factory.post(url,data={"name":"Bed"})
+        force_authenticate(request,user=user)
+        response = view(request,store_id=1)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"],"Bed")
+    
+    def test_create_product_fail(self):
+        url = reverse("list_products",kwargs={"store_id":1})
+        user = User.objects.get(id=1)
+        view = ProductView.as_view({"post":"create"})
+        request = self.factory.post(url,data={"name":"Chair"})
+        force_authenticate(request,user=user)
+        response = view(request,store_id=3)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        
     """
     Ending Section for ProductView
     """
