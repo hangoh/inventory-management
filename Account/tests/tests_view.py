@@ -16,13 +16,13 @@ class UserTest(APITestCase):
         self.factory = APIRequestFactory()
 
     def test_authenticateUser_success(self):
-        url = reverse('authenticate_user')
+        url = reverse('authenticateuser')
         data={"username":"UncleBen", "password":"JustPassword"}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_authenticateUser_fail(self):
-        url = reverse('authenticate_user')
+        url = reverse('authenticateuser')
         data={"username":"Uncleben", "password":"JustPassword"}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -45,14 +45,14 @@ class UserTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     
     def test_create_user_success(self):
-        url = reverse('user_sign_up')
+        url = reverse('usersignup')
         data={'username':'UncleB',"password":"JustPassword"}
         response= self.client.post(url,data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
 
     def test_create_user_fail(self):
-        url = reverse('user_sign_up')
+        url = reverse('usersignup')
         data={'username':'UncleBen',"password":"JustPassword"}
         with self.assertRaises(IntegrityError):
             response= self.client.post(url,data)
