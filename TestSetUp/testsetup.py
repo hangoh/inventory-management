@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
-from Material.models import Store,Product,Material,Material_Stock
+from Store.models import Store,Product
+from Material.models import Material,MaterialStock,MaterialQuantity
 
 def initialAccountStoreSetUp(self):
     #create first user and 2 store associate with the user
@@ -24,19 +25,23 @@ def initialProductSetUp(self):
     store_1.products.add(product_1)
     store_1.products.add(product_2)
 
-
     # add one new product to store of store id 3 that associate with user of id 2
     store_3 = Store.objects.get(store_id = 3)
     store_3.products.add(product_1)
 
     # create three material 
-    material_1=Material.objects.create(price=5.00,name="wood",store=store_1)
-    material_2=Material.objects.create(price=1.30,name="plastic",store=store_3)
-    material_3=Material.objects.create(price=10.50,name="steel",store=store_3)
+    material_1=Material.objects.create(price=5.00,name="wood")
+    material_2=Material.objects.create(price=1.30,name="plastic")
+    material_3=Material.objects.create(price=10.50,name="steel")
 
     # material stock for store_id 1  for user id 1
-    Material_Stock.objects.create(max_capacity=200,current_capacity=104,material=material_1,store=store_1)
-    Material_Stock.objects.create(max_capacity=100,current_capacity=45,material=material_3,store=store_1)
+    MaterialStock.objects.create(max_capacity=200,current_capacity=104,material=material_1,store=store_1)
+    MaterialStock.objects.create(max_capacity=100,current_capacity=45,material=material_3,store=store_1)
 
     #material stock for store_id 3 for user id 2
-    Material_Stock.objects.create(max_capacity=230,current_capacity=144,material=material_2,store=store_3)
+    MaterialStock.objects.create(max_capacity=230,current_capacity=144,material=material_2,store=store_3)
+
+    # 2 type of material quantity for product id 1 in store id 1
+    MaterialQuantity.objects.create(quantity = 5, ingredient=material_1, product=product_1)
+    MaterialQuantity.objects.create(quantity = 2, ingredient=material_3, product=product_1)
+

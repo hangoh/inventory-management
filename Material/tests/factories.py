@@ -1,7 +1,7 @@
 import factory
 from factory.django import DjangoModelFactory
 
-from Material.models import Material, Material_Quantity,Material_Stock
+from Material.models import Material, MaterialQuantity,MaterialStock
 from Store.tests.factories import StoreFactory,ProductFactory
 
 class MaterialFactory(DjangoModelFactory):
@@ -15,20 +15,20 @@ class MaterialFactory(DjangoModelFactory):
 
 class MaterialQuantityFactory(DjangoModelFactory):
     class Meta:
-        model = Material_Quantity
+        model = MaterialQuantity
 
     # The Id will always be the total object count of Material Quantity + 1, if the Id is not provided
-    id = factory.LazyAttribute(lambda n:Material_Quantity.objects.all().count()+1)
+    id = factory.LazyAttribute(lambda n:MaterialQuantity.objects.all().count()+1)
     quantity = 10
     product = factory.SubFactory(ProductFactory)
     ingredient = factory.SubFactory(MaterialFactory)
 
 class MaterialStockFactory(DjangoModelFactory):
     class Meta:
-        model = Material_Stock
+        model = MaterialStock
 
     # The Id will always be the total object count of Material Stock + 1, if the Id is not provided
-    id = factory.LazyAttribute(lambda n:Material_Stock.objects.all().count()+1)
+    id = factory.LazyAttribute(lambda n:MaterialStock.objects.all().count()+1)
     material = factory.SubFactory(MaterialFactory)
     store = factory.SubFactory(StoreFactory)
     max_capacity = 100

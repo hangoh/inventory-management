@@ -6,7 +6,7 @@ from django.db import IntegrityError
 
 from Material.tests.factories import MaterialFactory
 from Store.models import Store,Product
-from Material.models import Material_Stock,Material,Material_Quantity
+from Material.models import MaterialStock,Material,MaterialQuantity
 from Material.tests.factories import MaterialStockFactory,MaterialQuantityFactory
 
 
@@ -21,11 +21,11 @@ Test in This Sequence
 class TestMaterialFactory(unittest.TestCase):
     def test_Material_creation(self):
         store = Store.objects.get(store_id=1)
-        material = MaterialFactory.create(material_id=1,price=2.30,name='plastic',store=store)
+        material = MaterialFactory.create(material_id=1,price=2.30,name='plastic')
         self.assertEqual(material.material_id, 1)
         self.assertEqual(material.price,2.30)
         self.assertEqual(material.name,"plastic")
-        material = MaterialFactory.create(price=2.00,name="steel",store=store)
+        material = MaterialFactory.create(price=2.00,name="steel")
         self.assertEqual(material.material_id, 2)
         self.assertEqual(material.price,2.00)
         self.assertEqual(material.name,"steel")
@@ -58,7 +58,7 @@ class TestMaterialStockFactory(unittest.TestCase):
     #As Expected
 
     def test_material_stock_get(self):
-        m_s = Material_Stock.objects.get(id=1)
+        m_s = MaterialStock.objects.get(id=1)
         m = Material.objects.get(material_id = m_s.material.material_id)
         # material of id=1 should have price = 2.30 and name = "plastic"
         self.assertEqual(m.price,Decimal("2.30"))
@@ -97,7 +97,7 @@ class TestMaterialQuantityFactory(unittest.TestCase):
     #As Expected
 
     def test_material_quantity_get(self):
-        m_q = Material_Quantity.objects.get(id=1)
+        m_q = MaterialQuantity.objects.get(id=1)
         m = Material.objects.get(material_id = m_q.ingredient.material_id)
         p = Product.objects.get(id = m_q.product.id)
         # material of id=1 should have price = 2.3 and name = "plastic"

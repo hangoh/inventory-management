@@ -3,15 +3,18 @@ from django.http import Http404
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response 
 from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.viewsets import ModelViewSet
 
 from Account.serializer.AccountSerializer import UserSerializer, UserAuthSerializer 
 from Account.services.account_services import get_user,create_user,sign_out_user
 
 # Create your views here.
-class UserView(ModelViewSet):
-    permission_classes=[IsAuthenticated]
+class BaseAuthenticatedView(ModelViewSet):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+class UserView(BaseAuthenticatedView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

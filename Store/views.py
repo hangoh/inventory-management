@@ -1,8 +1,7 @@
 from rest_framework import status
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 
+from Account.views import BaseAuthenticatedView
 from Store.serializer.store_serializer import StoreSerializer,ProductSerializer
 from Store.services.store_services import (get_stores_service, get_store_service, list_product_service, 
                                            update_store_name_service, delete_store_service, update_product_name_service,
@@ -10,9 +9,8 @@ from Store.services.store_services import (get_stores_service, get_store_service
 from Store.models import Product,Store
 # Create your views here.
 
-class StoreView(ModelViewSet):
+class StoreView(BaseAuthenticatedView):
     queryset = Store.objects.all()
-    permission_classes = [IsAuthenticated]
     serializer_class = StoreSerializer
 
     def create(self, request):
@@ -50,9 +48,8 @@ class StoreView(ModelViewSet):
         return Response({"response":"Delete Store Successfully"},status=status.HTTP_200_OK)
     
 
-class ProductView(ModelViewSet):
+class ProductView(BaseAuthenticatedView):
     queryset = Product.objects.all()
-    permission_classes = [AllowAny]
     serializer_class = ProductSerializer
 
     def create(self, request,store_id):
