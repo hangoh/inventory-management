@@ -1,5 +1,6 @@
-from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
+
+from rest_framework.authtoken.models import Token
 
 def get_user(request):
     user = request.user

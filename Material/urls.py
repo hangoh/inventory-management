@@ -1,6 +1,6 @@
 from django.urls import path
 
-from Material.views import MaterialStockView,MaterialView,MaterialQuantityView
+from .views import MaterialStockView,MaterialView,MaterialQuantityView
 
 urlpatterns = [
     path('material',MaterialView.as_view({"get":"retrieve","post":"create"}),name='list_material'),

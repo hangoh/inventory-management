@@ -1,11 +1,12 @@
-from rest_framework import authentication
-from django_mock_queries.query import MockModel,MockSet
 from unittest import mock
+
+from django.urls import reverse
+
 from rest_framework import exceptions
 from rest_framework.authtoken.models import Token
-from django.urls import reverse
+from rest_framework import authentication
 from rest_framework.test import APIRequestFactory,APITestCase
-
+from django_mock_queries.query import MockModel,MockSet
 
 
 class AuthenticationTest(authentication.TokenAuthentication):
@@ -24,6 +25,7 @@ class AuthenticationTest(authentication.TokenAuthentication):
         except:
             raise exceptions.AuthenticationFailed("Token does not exist")
         return (user,token)
+
 
 class TestAuth(APITestCase):
     factory = APIRequestFactory()

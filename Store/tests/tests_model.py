@@ -1,10 +1,11 @@
 import unittest
+
 from django.core import exceptions
 from django.contrib.auth.models import User
 
-from Material.models import Product
+from .factories import StoreFactory,ProductFactory
 
-from Store.tests.factories import StoreFactory,ProductFactory
+from Material.models import Product
 
 """
 Test in This Sequence

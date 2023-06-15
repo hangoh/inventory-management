@@ -5,6 +5,7 @@ from Account.serializer.AccountSerializer import UserAuthSerializer
 from Account.services.account_services import get_user,create_user,login_user
 from TestSetUp.testsetup import initialAccountStoreSetUp
 
+
 class TestAccountService(TestCase):
     def setUp(self):
         super().setUp()

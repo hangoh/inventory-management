@@ -1,9 +1,10 @@
 import unittest
+
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.core import exceptions
 
-from Account.tests.factories import UserModelFactory
+from .factories import UserModelFactory
 
 """
 Test in This Sequence
@@ -22,7 +23,6 @@ class TestUserModel(unittest.TestCase):
             instance = UserModelFactory.build(username="",password="JustPassword")
             instance.full_clean()
 
-    
     def test_user_username_not_unique_error(self):
         with self.assertRaises(IntegrityError):
             UserModelFactory.create(username="UncleBen",password="JustPassword")

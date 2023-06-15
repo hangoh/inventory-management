@@ -1,4 +1,4 @@
-from Material.models import Store,Product
+from Store.models import Store,Product
 
 """
 Store Services

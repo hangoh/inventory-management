@@ -1,4 +1,5 @@
 import unittest
+
 from Material.models import Product,MaterialQuantity,Material
 
 """
@@ -6,6 +7,7 @@ Please proceed to this test after testing for
 both test_model.py in Account and Material and
 test_model_2.py in Material 
 """
+
 
 class TestProductDeletion(unittest.TestCase):
     def test_product_deletion(self):
@@ -17,7 +19,6 @@ class TestProductDeletion(unittest.TestCase):
         # Removing Product should also remove Material_Quantity
         self.assertFalse(MaterialQuantity.objects.filter(id=1).exists())
     
-
     def test_material_deletion(self):
         Material.objects.all().delete()
         # Material with id 1 will be remove (Of Course!)

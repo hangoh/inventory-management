@@ -1,14 +1,15 @@
 from rest_framework import status
 from rest_framework.response import Response
 
-from Account.views import BaseAuthenticatedView
-from Store.serializer.store_serializer import StoreSerializer,ProductSerializer
-from Store.services.store_services import (get_stores_service, get_store_service, list_product_service, 
-                                           update_store_name_service, delete_store_service, update_product_name_service,
-                                           delete_product_service, create_store, create_product)
-from Store.models import Product,Store
-# Create your views here.
+from .models import Product,Store
+from .serializer.store_serializer import StoreSerializer,ProductSerializer
+from .services.store_services import (get_stores_service, get_store_service, 
+list_product_service, update_store_name_service, delete_store_service, 
+update_product_name_service, delete_product_service, create_store, create_product)
 
+from Account.views import BaseAuthenticatedView
+
+# Create your views here.
 class StoreView(BaseAuthenticatedView):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer

@@ -3,6 +3,7 @@ from django.core.validators import MinLengthValidator
 
 from Store.models import Product, Store
 
+
 # Create your models here.
 class Material(models.Model):
     material_id = models.AutoField(primary_key=True)
