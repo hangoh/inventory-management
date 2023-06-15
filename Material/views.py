@@ -1,15 +1,13 @@
 from rest_framework import status
 from rest_framework.response import Response
 
+from .models import MaterialStock,Material,MaterialQuantity
+from .serializer.MaterialSerializer import MaterialStockSerializer,MaterialSerializer,MaterialQuantitySerializer
+from .services.material_services import (list_material_service, update_material_service, create_material_service, delete_material_service, list_material_stock_service, update_max_capacity_service, create_material_stock_service ,delete_material_stock_service, list_material_quantity_service, update_material_quantity_service, create_material_quantity_service, delete_material_quantity_service)
+
 from Account.views import BaseAuthenticatedView
-from Material.models import MaterialStock,Material,MaterialQuantity
-from Material.serializer.MaterialSerializer import MaterialStockSerializer,MaterialSerializer,MaterialQuantitySerializer
-from Material.services.material_services import (list_material_service,update_material_service,create_material_service,delete_material_service,
-                                                 list_material_stock_service,update_max_capacity_service,create_material_stock_service,delete_material_stock_service,
-                                                 list_material_quantity_service,update_material_quantity_service,create_material_quantity_service,delete_material_quantity_service)
 
 # Create your views here.
-
 class MaterialView(BaseAuthenticatedView):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer

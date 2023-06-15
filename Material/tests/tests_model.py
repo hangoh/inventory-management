@@ -4,11 +4,11 @@ from decimal import Decimal
 from django.core import exceptions
 from django.db import IntegrityError
 
-from Material.tests.factories import MaterialFactory
+from .factories import MaterialFactory
+
 from Store.models import Store,Product
 from Material.models import MaterialStock,Material,MaterialQuantity
 from Material.tests.factories import MaterialStockFactory,MaterialQuantityFactory
-
 
 """
 Test in This Sequence
@@ -17,10 +17,10 @@ Test in This Sequence
 3. python manage.py test Material.tests.tests_model                  
 """
 
+
 # Create your tests here.
 class TestMaterialFactory(unittest.TestCase):
     def test_Material_creation(self):
-        store = Store.objects.get(store_id=1)
         material = MaterialFactory.create(material_id=1,price=2.30,name='plastic')
         self.assertEqual(material.material_id, 1)
         self.assertEqual(material.price,2.30)
@@ -40,11 +40,11 @@ class TestMaterialFactory(unittest.TestCase):
             instance = MaterialFactory.build(material_id=5,price=2)
             instance.full_clean()
 
+
 class TestMaterialStockFactory(unittest.TestCase):
     def test_material_stock_creation(self):
         self.material_factory = Material.objects.get(material_id=1)
         self.store = Store.objects.get(store_id=1)
-       
         material_stock = MaterialStockFactory.create(material = self.material_factory,store=self.store)
         self.assertEqual(material_stock.id,1)
         self.assertEqual(material_stock.max_capacity,100)
@@ -80,6 +80,7 @@ class TestMaterialStockFactory(unittest.TestCase):
         with self.assertRaises(exceptions.ValidationError):
             instance = MaterialStockFactory.build(max_capacity=-100 ,current_capacity=20)
             instance.full_clean()
+
 
 class TestMaterialQuantityFactory(unittest.TestCase):
     def test_material_quantity_creation(self):

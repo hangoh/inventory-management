@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from Material.models import MaterialStock,Material,MaterialQuantity
 
+
 class MaterialStockSerializer(serializers.ModelSerializer):
     capacity_percentage = serializers.SerializerMethodField()
     class Meta:
@@ -17,6 +18,7 @@ class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Material
         fields = ["material_id","price","name"]
+
 
 class MaterialQuantitySerializer(serializers.ModelSerializer):
     class Meta:

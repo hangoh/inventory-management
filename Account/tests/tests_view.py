@@ -1,11 +1,13 @@
 from django.urls import reverse
-from rest_framework.test import APITestCase,force_authenticate,APIRequestFactory
-from rest_framework import status
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 
+from rest_framework.test import APITestCase,force_authenticate,APIRequestFactory
+from rest_framework import status
+
 from TestSetUp.testsetup import initialAccountStoreSetUp
 from Account.views import UserView
+
 
 class UserTest(APITestCase):
     def setUp(self):

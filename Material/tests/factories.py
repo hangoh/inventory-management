@@ -4,6 +4,7 @@ from factory.django import DjangoModelFactory
 from Material.models import Material, MaterialQuantity,MaterialStock
 from Store.tests.factories import StoreFactory,ProductFactory
 
+
 class MaterialFactory(DjangoModelFactory):
     class Meta:
         model = Material
@@ -12,6 +13,7 @@ class MaterialFactory(DjangoModelFactory):
     material_id = factory.LazyAttribute(lambda n:Material.objects.all().count()+1)
     price = 2.00
     name = ""
+
 
 class MaterialQuantityFactory(DjangoModelFactory):
     class Meta:
@@ -22,6 +24,7 @@ class MaterialQuantityFactory(DjangoModelFactory):
     quantity = 10
     product = factory.SubFactory(ProductFactory)
     ingredient = factory.SubFactory(MaterialFactory)
+
 
 class MaterialStockFactory(DjangoModelFactory):
     class Meta:

@@ -1,7 +1,8 @@
 from django.urls import path
+
 from rest_framework.authtoken import views
 
-from Account.views import UserView,UserCreateView
+from .views import UserView,UserCreateView
 
 urlpatterns = [
     path("",UserView.as_view({"get":"retrieve"}), name="user"),
