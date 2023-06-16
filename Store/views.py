@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from .models import Product,Store
-from .serializer.store_serializer import StoreSerializer,ProductSerializer
+from .serializer.store_serializer import StoreSerializer,ProductSerializer,RemainingCapacitySerializer
 from .services.store_services import (get_stores_service, get_store_service, 
 list_product_service, update_store_name_service, delete_store_service, 
 update_product_name_service, delete_product_service, create_store, create_product)
@@ -78,3 +78,12 @@ class ProductView(BaseAuthenticatedView):
              return Response({"error":"Failed to Delete Product"}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"response":"Delete Product Successfully"}, status = status.HTTP_200_OK)
     
+
+class ProductCapacityView(BaseAuthenticatedView):
+    queryset = Product.objects.all()
+    serializer_class = RemainingCapacitySerializer
+    def retrieve(self,request,store_uuid):
+        product = list_product_service(request,store_uuid)
+        if not product:
+            return Response({"error":"No Product"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(RemainingCapacitySerializer(product,many=True).data, status = status.HTTP_200_OK)

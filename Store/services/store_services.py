@@ -108,3 +108,21 @@ def create_product(request,store_uuid):
     product.save()
     store.products.add(product)
     return product
+
+# calculate the quantity of each product that can be produce before any material become insufficeint
+def calculate_remaining_product_quantity(material_quantity,material_stock_current_capacity):
+    material_sufficient = True
+    quantity = 0
+    current_index=0
+    if material_quantity!=[] and material_stock_current_capacity!=[]:
+        while material_sufficient:
+            current_index=0
+            for each_stock_capacity in material_stock_current_capacity:
+                if not (each_stock_capacity - material_quantity[current_index]>=0):
+                    material_sufficient =False
+                    return quantity
+                material_stock_current_capacity[current_index] -= material_quantity[current_index]
+                current_index+=1
+            quantity+=1
+    return quantity
+            

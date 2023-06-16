@@ -86,9 +86,9 @@ class TestMaterialQuantityFactory(unittest.TestCase):
     def test_material_quantity_creation(self):
         self.material_factory = Material.objects.get(material_id=1)
         self.product = Product.objects.get(id=1)
-        material_quantity = MaterialQuantityFactory.create(quantity=55,ingredient = self.material_factory,product=self.product)
+        material_quantity = MaterialQuantityFactory.create(quantity=5,ingredient = self.material_factory,product=self.product)
         self.assertEqual(material_quantity.id,1)
-        self.assertEqual(material_quantity.quantity,55)
+        self.assertEqual(material_quantity.quantity,5)
         self.assertEqual(material_quantity.ingredient,self.material_factory)
         self.assertEqual(material_quantity.product.name,self.product.name)
 
@@ -109,7 +109,7 @@ class TestMaterialQuantityFactory(unittest.TestCase):
         # material_quantity of id=1 should have quantity=55
         # and the material object in ingredient should have material_id of 1
         self.assertEqual(m_q.id,1)
-        self.assertEqual(m_q.quantity,55)
+        self.assertEqual(m_q.quantity,5)
         self.assertEqual(m_q.ingredient.material_id,m.material_id)
         self.assertEqual(m_q.product.name,p.name)
 
