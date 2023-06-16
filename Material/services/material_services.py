@@ -20,9 +20,9 @@ def create_material_service(request):
     return False
 
 # update material
-def update_material_service(request,material_id):
+def update_material_service(request,material_uuid):
     try:
-        material = Material.objects.get(material_id=material_id)
+        material = Material.objects.get(uuid=material_uuid)
         material.price = request.data["price"]
         material.name = request.data["name"]
         material.save()
@@ -31,9 +31,9 @@ def update_material_service(request,material_id):
         return False
 
 # delete material
-def delete_material_service(material_id):
+def delete_material_service(material_uuid):
     try:
-        material = Material.objects.get(material_id=material_id)
+        material = Material.objects.get(uuid=material_uuid)
         material.delete()
         return True
     except:
@@ -44,8 +44,8 @@ Material Stock Service
 """
 
 # list all material stock associate with a store 
-def list_material_stock_service(request,store_id):
-    store = get_store_service(request.user,store_id)
+def list_material_stock_service(request,store_uuid):
+    store = get_store_service(request.user,store_uuid)
     if not store:
         return False
     inventory = MaterialStock.objects.filter(store = store)
@@ -60,10 +60,10 @@ def check_and_return_valid_max_capacity(max_capacity,current_capacity):
     return max_capacity
 
 # create material stock
-def create_material_stock_service(request,store_id,material_id):
+def create_material_stock_service(request,store_uuid,material_uuid):
     try:
-        material = Material.objects.get(material_id=material_id)
-        store = get_store_service(request.user,store_id)
+        material = Material.objects.get(uuid=material_uuid)
+        store = get_store_service(request.user,store_uuid)
         if material and store:
             material_stock = MaterialStock.objects.create(material = material,store=store,
                                                         current_capacity  = int(request.data["current_capacity"]),
@@ -75,12 +75,12 @@ def create_material_stock_service(request,store_id,material_id):
         return False
 
 # update max_capacity of materrial stock
-def update_max_capacity_service(request,store_id,material_stock_id):
-    store = get_store_service(request.user,store_id)
+def update_max_capacity_service(request,store_uuid,material_stock_uuid):
+    store = get_store_service(request.user,store_uuid)
     if not store:
         return False
     try:
-        material_stock = MaterialStock.objects.get(id=material_stock_id,store=store)
+        material_stock = MaterialStock.objects.get(uuid=material_stock_uuid,store=store)
         material_stock.max_capacity = check_and_return_valid_max_capacity(int(request.data["max_capacity"]),int(material_stock.current_capacity))
         material_stock.save()
         return material_stock
@@ -88,12 +88,12 @@ def update_max_capacity_service(request,store_id,material_stock_id):
         return False
 
 # delete material stock        
-def delete_material_stock_service(request,store_id,material_stock_id):
-    store = get_store_service(request.user,store_id)
+def delete_material_stock_service(request,store_uuid,material_stock_uuid):
+    store = get_store_service(request.user,store_uuid)
     if not store:
         return False
     try:
-        material = MaterialStock.objects.get(id=material_stock_id,store=store)
+        material = MaterialStock.objects.get(uuid=material_stock_uuid,store=store)
         material.delete()
         return True
     except:
@@ -104,10 +104,10 @@ Material Quantity Service
 """
 
 # create material quantity for a product that is associate with a store 
-def create_material_quantity_service(request,store_id, material_id,product_id):
+def create_material_quantity_service(request,store_uuid, material_uuid,product_uuid):
     try:
-        material = Material.objects.get(material_id = material_id)
-        product = get_product_service(request,store_id=store_id,product_id = product_id)
+        material = Material.objects.get(uuid = material_uuid)
+        product = get_product_service(request,store_uuid=store_uuid,product_uuid = product_uuid)
         material_quantity = MaterialQuantity.objects.create(ingredient = material, product = product, quantity = request.data["quantity"])
         if material_quantity:
             return material_quantity
@@ -116,11 +116,11 @@ def create_material_quantity_service(request,store_id, material_id,product_id):
         return False
     
 # create the quantity field of material quantity for a product that is associate with a store 
-def update_material_quantity_service(request,store_id, material_id,product_id,material_quantity_id):
+def update_material_quantity_service(request,store_uuid, material_uuid,product_uuid,material_quantity_uuid):
     try:
-        material = Material.objects.get(material_id = material_id)
-        product = get_product_service(request,store_id=store_id,product_id = product_id)
-        material_quantity = MaterialQuantity.objects.get(ingredient = material,product=product, id = material_quantity_id)
+        material = Material.objects.get(uuid = material_uuid)
+        product = get_product_service(request,store_uuid=store_uuid,product_uuid = product_uuid)
+        material_quantity = MaterialQuantity.objects.get(ingredient = material,product=product, uuid = material_quantity_uuid)
         if material_quantity:
             material_quantity.quantity = request.data["quantity"]
             material_quantity.save()
@@ -130,9 +130,9 @@ def update_material_quantity_service(request,store_id, material_id,product_id,ma
         return False
 
 # list all material quantity for a product that is associate with a store 
-def list_material_quantity_service(request,store_id,product_id):
+def list_material_quantity_service(request,store_uuid,product_uuid):
     try:
-        product = get_product_service(request,store_id=store_id,product_id = product_id)
+        product = get_product_service(request,store_uuid=store_uuid,product_uuid = product_uuid)
         material_quantity = MaterialQuantity.objects.filter(product = product)
         if material_quantity:
             return material_quantity
@@ -141,11 +141,11 @@ def list_material_quantity_service(request,store_id,product_id):
         return False
 
 # delete a material quantity for a product that is associate with a store 
-def delete_material_quantity_service(request,store_id, material_id,product_id,material_quantity_id):
+def delete_material_quantity_service(request,store_uuid, material_uuid,product_uuid,material_quantity_uuid):
     try:
-        material = Material.objects.get(material_id = material_id)
-        product = get_product_service(request,store_id=store_id,product_id = product_id)
-        material_quantity = MaterialQuantity.objects.get(ingredient = material,product=product, id = material_quantity_id)
+        material = Material.objects.get(uuid = material_uuid)
+        product = get_product_service(request,store_uuid=store_uuid,product_uuid = product_uuid)
+        material_quantity = MaterialQuantity.objects.get(ingredient = material,product=product, uuid = material_quantity_uuid)
         if material_quantity:
             material_quantity.delete()
             return True

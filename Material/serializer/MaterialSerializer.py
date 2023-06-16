@@ -7,7 +7,7 @@ class MaterialStockSerializer(serializers.ModelSerializer):
     capacity_percentage = serializers.SerializerMethodField()
     class Meta:
         model  = MaterialStock
-        fields = ["material","max_capacity","current_capacity", "capacity_percentage"]
+        fields = ["uuid","material","max_capacity","current_capacity", "capacity_percentage"]
         depth = 1
     
     def get_capacity_percentage(self,obj):
@@ -17,12 +17,12 @@ class MaterialStockSerializer(serializers.ModelSerializer):
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Material
-        fields = ["material_id","price","name"]
+        fields = ["uuid","price","name"]
 
 
 class MaterialQuantitySerializer(serializers.ModelSerializer):
     class Meta:
         model  = MaterialQuantity
-        fields = ["id","quantity","ingredient","product"]
+        fields = ["uuid","quantity","ingredient","product"]
         depth = 1
 
