@@ -12,12 +12,12 @@ def get_stores_service(user):
     return stores
 
 # return store that got by id
-def get_store_service(user,id):
+def get_store_service(user,uuid):
     stores = Store.objects.filter(user=user)
     if not stores:
         return False
     try:
-        store = stores.get(store_id=id)
+        store = stores.get(uuid=uuid)
         return store
     except:
         return False
@@ -41,8 +41,8 @@ def create_store(request):
     return False
 
 # update store name of a specific id
-def update_store_name_service(request,store_id):
-    store = get_store_service(request.user,store_id)
+def update_store_name_service(request,store_uuid):
+    store = get_store_service(request.user,store_uuid)
     if store:
         store.store_name = request.data["store_name"]
         store.save()
@@ -50,8 +50,8 @@ def update_store_name_service(request,store_id):
     return False
 
 # delete store of a specific id
-def delete_store_service(request,store_id):
-    store = get_store_service(request.user,store_id)
+def delete_store_service(request,store_uuid):
+    store = get_store_service(request.user,store_uuid)
     if store:
         store.delete()
         return True
@@ -62,8 +62,8 @@ Product Services
 """
 
 # list all product in a specific store
-def list_product_service(request,store_id):
-    store = get_store_service(request.user,store_id)
+def list_product_service(request,store_uuid):
+    store = get_store_service(request.user,store_uuid)
     if not store:
         return False
     product = store.products.all()
@@ -72,19 +72,19 @@ def list_product_service(request,store_id):
     return product
 
 # get a product of a specific id associate with a specific store
-def get_product_service(request,store_id,product_id):
-    products = list_product_service(request,store_id=store_id)
+def get_product_service(request,store_uuid,product_uuid):
+    products = list_product_service(request,store_uuid=store_uuid)
     if not products:
         return False
     try:
-        product = products.get(id = product_id)
+        product = products.get(uuid = product_uuid)
         return product
     except:
         return False
 
 # update a product of a specific id associate with a specific store
-def update_product_name_service(request,store_id,product_id):
-    product = get_product_service(request,store_id,product_id)
+def update_product_name_service(request,store_uuid,product_uuid):
+    product = get_product_service(request,store_uuid,product_uuid)
     if product:
         product.name = request.data["name"]
         product.save()
@@ -92,16 +92,16 @@ def update_product_name_service(request,store_id,product_id):
     return False
 
 # delete a product of a specific id associate with a specific store
-def delete_product_service(request,store_id,product_id):
-    product = get_product_service(request,store_id,product_id)
+def delete_product_service(request,store_uuid,product_uuid):
+    product = get_product_service(request,store_uuid,product_uuid)
     if product:
         product.delete()
         return True
     return False
 
 #create product with provided product name and add the product to store with provided store_id
-def create_product(request,store_id):
-    store = get_store_service(request.user,store_id)
+def create_product(request,store_uuid):
+    store = get_store_service(request.user,store_uuid)
     if not store:
         return False
     product = Product.objects.create(name=request.data["name"])

@@ -39,7 +39,7 @@ class UserView(BaseAuthenticatedView):
         response = sign_out_user(user)
         if response:
              return Response({"success":"Sign Out Successfully"}, status=status.HTTP_200_OK)
-        return Response({"error":"You can't retrieve user detail of others"},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error":"Fail To Sign Out"},status=status.HTTP_400_BAD_REQUEST)
     
 
 class UserCreateView(ModelViewSet):
