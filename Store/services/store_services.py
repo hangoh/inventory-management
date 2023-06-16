@@ -110,6 +110,12 @@ def create_product(request,store_uuid):
     return product
 
 # calculate the quantity of each product that can be produce before any material become insufficeint
+"""
+The logic is that if any of the number in material_stock_current_capacity 
+is less than(<) zero than it will return the current quantity since all material should 
+have the sufficient amount to produce the product
+"""
+
 def calculate_remaining_product_quantity(material_quantity,material_stock_current_capacity):
     material_sufficient = True
     quantity = 0
