@@ -11,7 +11,8 @@ from Material.services.material_services import (list_material_service, create_m
 update_material_service, delete_material_service, list_material_stock_service, 
 create_material_stock_service, update_max_capacity_service, delete_material_stock_service, 
 list_material_quantity_service, create_material_quantity_service, update_material_quantity_service, 
-delete_material_quantity_service)
+delete_material_quantity_service,
+check_for_restock, request_for_restock)
 
 
 class TestMaterialServices(APITestCase):
@@ -247,3 +248,40 @@ class TestMaterialServices(APITestCase):
         material_quantity_uuid = MaterialQuantity.objects.get(id = 1).uuid
         self.assertFalse(delete_material_quantity_service(request, store_uuid=store_uuid, material_uuid=material_uuid, product_uuid=product_uuid, material_quantity_uuid=material_quantity_uuid))
         
+    """
+    Non model services test
+    """
+
+    def test_check_for_restock(self):
+        request = self.factory.get('/')
+        request.user = self.user 
+        material_stock_uuid = MaterialStock.objects.get(id = 1).uuid
+        response = check_for_restock(material_stock_uuid = material_stock_uuid)
+        # expected_price = (200-104)*5.00 = 480
+        self.assertEqual(response, 480.00)
+
+    def test_check_for_restock_fail(self):
+        request = self.factory.get('/')
+        request.user = self.user 
+        # provide a uuid that is not belong to material stock object 
+        material_stock_uuid = Material.objects.get(material_id = 1).uuid
+        response = check_for_restock(material_stock_uuid = material_stock_uuid)
+        # expected response == None since an invalid uuid is provided
+        self.assertEqual(response, None)
+
+    def test_request_for_restock(self):
+        request = self.factory.post('/')
+        request.user = self.user 
+        material_stock_uuid = MaterialStock.objects.get(id = 1).uuid
+        response = request_for_restock(material_stock_uuid = material_stock_uuid)
+        # expected amount to restock = 200-104
+        self.assertEqual(response, 96)
+
+    def test_request_for_restock_fail(self):
+        request = self.factory.post('/')
+        request.user = self.user 
+        # provide a uuid that is not belong to material stock object 
+        material_stock_uuid = Material.objects.get(material_id = 1).uuid
+        response = request_for_restock(material_stock_uuid = material_stock_uuid)
+        # expected amount to restock == False since an invalid uuid is provided
+        self.assertEqual(response, False)

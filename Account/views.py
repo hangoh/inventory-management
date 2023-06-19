@@ -1,23 +1,17 @@
 from django.contrib.auth.models import User
 from django.http import Http404
 
-from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response 
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.viewsets import ModelViewSet
 
 from .serializer.AccountSerializer import UserSerializer, UserAuthSerializer 
 from .services.account_services import get_user,create_user,sign_out_user
-
+from IM_server.views import BaseAuthenticatedViewSet
 
 # Create your views here.
-class BaseAuthenticatedView(ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-
-class UserView(BaseAuthenticatedView):
+class UserViewSet(BaseAuthenticatedViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -42,7 +36,7 @@ class UserView(BaseAuthenticatedView):
         return Response({"error":"Fail To Sign Out"},status=status.HTTP_400_BAD_REQUEST)
     
 
-class UserCreateView(ModelViewSet):
+class UserCreateViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes=[AllowAny]

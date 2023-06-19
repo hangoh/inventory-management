@@ -7,10 +7,10 @@ from .services.store_services import (get_stores_service, get_store_service,
 list_product_service, update_store_name_service, delete_store_service, 
 update_product_name_service, delete_product_service, create_store, create_product)
 
-from Account.views import BaseAuthenticatedView
+from IM_server.views import BaseAuthenticatedViewSet
 
 # Create your views here.
-class StoreView(BaseAuthenticatedView):
+class StoreViewSet(BaseAuthenticatedViewSet):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
 
@@ -49,7 +49,7 @@ class StoreView(BaseAuthenticatedView):
         return Response({"response":"Delete Store Successfully"},status=status.HTTP_200_OK)
     
 
-class ProductView(BaseAuthenticatedView):
+class ProductViewSet(BaseAuthenticatedViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -79,9 +79,10 @@ class ProductView(BaseAuthenticatedView):
         return Response({"response":"Delete Product Successfully"}, status = status.HTTP_200_OK)
     
 
-class ProductCapacityView(BaseAuthenticatedView):
+class ProductCapacityViewSet(BaseAuthenticatedViewSet):
     queryset = Product.objects.all()
     serializer_class = RemainingCapacitySerializer
+    
     def retrieve(self,request,store_uuid):
         product = list_product_service(request,store_uuid)
         if not product:

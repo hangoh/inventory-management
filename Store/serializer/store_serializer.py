@@ -40,4 +40,4 @@ class RemainingCapacitySerializer(serializers.ModelSerializer):
             return quantity
         except:
             return 0
-    
+        
