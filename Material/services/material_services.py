@@ -152,3 +152,27 @@ def delete_material_quantity_service(request,store_uuid, material_uuid,product_u
         return False
     except:
         return False
+
+# return the quantity of material and total price to restock a type of material
+def check_for_restock(material_stock_uuid):
+    try:
+        material_stock = MaterialStock.objects.get(uuid =material_stock_uuid)
+        # minus the current capacity of material stock using max capacity to get the amount require to restock
+        amount_to_restock = material_stock.max_capacity-material_stock.current_capacity
+        material = Material.objects.get(uuid = material_stock.material.uuid)
+        # times the amount_to_restock with material price to get total price
+        price = amount_to_restock*material.price
+        return price
+    except:
+        return None
+    
+# return retocked material stock or false after a request for restock was made
+def request_for_restock(material_stock_uuid):
+    try:
+        material_stock = MaterialStock.objects.get(uuid = material_stock_uuid)
+        amount_restocked = material_stock.max_capacity - material_stock.current_capacity
+        material_stock.current_capacity = material_stock.max_capacity
+        material_stock.save()
+        return amount_restocked
+    except:
+        return False

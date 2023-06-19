@@ -7,7 +7,7 @@ from TestSetUp.testsetup import initialAccountStoreSetUp,initialProductSetUp
 from Store.models import Product,Store
 from Store.services.store_services import( get_store_service, get_stores_service, list_product_service,
 update_store_name_service, delete_store_service, update_product_name_service, 
-delete_product_service, create_store, create_product)
+delete_product_service, create_store, create_product, calculate_remaining_product_quantity)
 
 
 class TestStoreServices(APITestCase):
@@ -153,3 +153,15 @@ class TestStoreServices(APITestCase):
         store_uuid = Store.objects.get(store_id=2).uuid
         product_uuid = Product.objects.get(id=2).uuid
         self.assertFalse(delete_product_service(request,store_uuid=store_uuid,product_uuid=product_uuid))
+
+    """
+    Non Model services test
+    """
+
+    def test_calculate_remaining_product_capacity(self):
+        request = self.factory.get("/")
+        request.user = self.user
+        material_quantity=[5,6]
+        material_stock_current_capacity=[55,55]
+        response = calculate_remaining_product_quantity(material_quantity=material_quantity,material_stock_current_capacity=material_stock_current_capacity)
+        self.assertEqual(response,9)

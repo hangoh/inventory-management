@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase,force_authenticate,APIRequestFactory
 from rest_framework import status
 
 from TestSetUp.testsetup import initialAccountStoreSetUp
-from Account.views import UserView
+from Account.views import UserViewSet
 
 
 class UserTest(APITestCase):
@@ -32,7 +32,7 @@ class UserTest(APITestCase):
         user= User.objects.get(id=1)
         request = self.factory.get(url)
         request.user= user
-        view = UserView.as_view({"get":"retrieve"})
+        view = UserViewSet.as_view({"get":"retrieve"})
         force_authenticate(request,user=user)
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
