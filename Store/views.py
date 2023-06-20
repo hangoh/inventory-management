@@ -5,9 +5,12 @@ from .models import Product,Store
 from .serializer.store_serializer import StoreSerializer,ProductSerializer,RemainingCapacitySerializer
 from .services.store_services import (get_stores_service, get_store_service, 
 list_product_service, update_store_name_service, delete_store_service, 
-update_product_name_service, delete_product_service, create_store, create_product)
+update_product_name_service, delete_product_service, create_store, create_product_service,
+product_sales_services)
 
 from IM_server.views import BaseAuthenticatedViewSet
+from Material.models import MaterialStock
+from Material.serializer.MaterialSerializer import MaterialStockSerializer
 
 # Create your views here.
 class StoreViewSet(BaseAuthenticatedViewSet):
@@ -54,7 +57,7 @@ class ProductViewSet(BaseAuthenticatedViewSet):
     serializer_class = ProductSerializer
 
     def create(self, request,store_uuid):
-        product = create_product(request,store_uuid)
+        product = create_product_service(request,store_uuid)
         if not product:
             return Response({"error":"Fail To Create Product"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -86,5 +89,16 @@ class ProductCapacityViewSet(BaseAuthenticatedViewSet):
     def retrieve(self,request,store_uuid):
         product = list_product_service(request,store_uuid)
         if not product:
-            return Response({"error":"No Product"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error":"No Product"}, status = status.HTTP_404_NOT_FOUND)
         return Response(RemainingCapacitySerializer(product,many=True).data, status = status.HTTP_200_OK)
+    
+
+class SalesViewSet(BaseAuthenticatedViewSet):
+    queryset = MaterialStock.objects.all()
+    serializer_class = MaterialStockSerializer
+
+    def create(self,request,store_uuid):
+        response = product_sales_services(request = request, store_uuid = store_uuid)
+        if response["sale"] == []:
+            return Response(response, status = status.HTTP_400_BAD_REQUEST)
+        return Response(response, status = status.HTTP_200_OK)
