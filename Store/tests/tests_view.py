@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.urls import reverse
 from django.contrib.auth.models import User
 
@@ -7,8 +5,8 @@ from rest_framework.test import APIRequestFactory,APITestCase,force_authenticate
 from rest_framework import status
 
 from TestSetUp.testsetup import initialAccountStoreSetUp,initialProductSetUp
-from Store.views import ProductViewSet,StoreViewSet,ProductCapacityViewSet
-from Store.models import Product,Store
+from Store.views import ProductViewSet, StoreViewSet, ProductCapacityViewSet, SalesViewSet
+from Store.models import Product, Store
 
 
 class TestMaterialView(APITestCase):
@@ -284,4 +282,30 @@ class TestMaterialView(APITestCase):
         store_uuid = Store.objects.get(store_id = 2).uuid
         response  = view(request,store_uuid = store_uuid)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-       
+
+    """
+    Product Sales View Test
+    """
+    
+    def test_product_sales_view(self):
+        url = reverse("productssales", kwargs={"store_uuid":self.uuid})
+        product = Product.objects.get(id = 1)
+        product2 = Product.objects.get(id = 2)
+        request = self.factory.post(url, data = {"products":[{"quantity":2,"uuid":product.uuid}]}, format = "json")
+        view  = SalesViewSet.as_view({"post":"create"})
+        force_authenticate(request, user = self.user)
+        response = view(request, self.uuid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["sale"][0]["quantity"], 2)
+        self.assertEqual(response.data["sale"][0]["product"], product)
+
+    def test_product_sales_view_fail(self):
+        url = reverse("productssales", kwargs={"store_uuid":self.uuid})
+        product = Product.objects.get(id = 1)
+        request = self.factory.post(url, data = {"products":[{"quantity":2,"uuid":product.uuid}]}, format = "json")
+        view  = SalesViewSet.as_view({"post":"create"})
+        force_authenticate(request, user = self.user)
+        response = view(request, Store.objects.get(store_id = 2).uuid)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"][0]["product"], product)
+        self.assertEqual(response.data["error"][0]["error"], "Fail to Update Sale For This Product uuid {}".format(product.uuid))
