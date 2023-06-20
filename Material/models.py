@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from django.db import models
+from django.db.models import Q,F
 from django.core.validators import MinLengthValidator
 
 from Store.models import Product, Store
@@ -29,6 +30,14 @@ class MaterialStock(models.Model):
     max_capacity = models.PositiveIntegerField()
     current_capacity = models.PositiveIntegerField()
     uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check = Q(current_capacity__lte = F("max_capacity")),
+                name = "current_capacity_lte_max_capacity" 
+            )
+        ]
 
 
 
