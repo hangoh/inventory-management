@@ -74,7 +74,7 @@ def create_material_stock_service(request,store_uuid,material_uuid):
     except:
         return False
 
-# update max_capacity of materrial stock
+# update max_capacity of material stock
 def update_max_capacity_service(request,store_uuid,material_stock_uuid):
     store = get_store_service(request.user,store_uuid)
     if not store:
