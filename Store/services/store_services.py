@@ -1,3 +1,5 @@
+import uuid
+
 from Store.models import Store,Product
 from Material.models import Material,MaterialQuantity, MaterialStock
 """
@@ -94,7 +96,7 @@ def calculate_remaining_product_quantity_service(material_quantity,material_stoc
 services or function related to updating the db for product sales 
 """
 
-def check_if_quantity_sold_is_valid(material_quantity_array):
+def check_if_quantity_sold_is_valid(material_quantity_array, store):
     """
     loop through the material_quantity_array and get the associate material stock objects then
     check if the current capacity of material stock is larger than the quantity of sales.
@@ -102,18 +104,18 @@ def check_if_quantity_sold_is_valid(material_quantity_array):
     than the sales quantity, the product sales quantity is error or invalid. 
     """
     for material_quantity in material_quantity_array:
-        material_stock = MaterialStock.objects.get(material = material_quantity["material"])
+        material_stock = MaterialStock.objects.get(material = material_quantity["material"], store = store)
         if material_stock.current_capacity-material_quantity["quantity"]<0:
             return False
     return True
 
-def save_quantity_sold_changes_to_db(material_quantity_array):
+def save_quantity_sold_changes_to_db(material_quantity_array,store):
     """
     loop through the material_quantity_array and get the associate material stock objects then
     abstract the quantity from material stock current capacity then save the db changes
     """
     for material_quantity in material_quantity_array:
-        material_stock = MaterialStock.objects.get(material = material_quantity["material"])
+        material_stock = MaterialStock.objects.get(material = material_quantity["material"], store = store)
         material_stock.current_capacity = material_stock.current_capacity-material_quantity["quantity"]
         material_stock.save()
             
@@ -129,15 +131,16 @@ def calculate_item_sold(request, quantity, store_uuid, product_uuid):
         # get all material required by the product
         product = get_product_service(request,store_uuid,product_uuid)
         materials = MaterialQuantity.objects.filter(product = product)
+        store = Store.objects.get(store_uuid = store_uuid)
         if not materials:
             return False
         # loop through the materials and append material and quantity set 
         # {"material" : material,"quantity" : material.quantity*quantity} into the array
         for material in materials:
             material_quantity_array.append({"material" : material.ingredient,"quantity" : int(material.quantity*quantity)})
-        if not check_if_quantity_sold_is_valid(material_quantity_array):
+        if not check_if_quantity_sold_is_valid(material_quantity_array, store):
             return False
-        save_quantity_sold_changes_to_db(material_quantity_array)
+        save_quantity_sold_changes_to_db(material_quantity_array,store)
         return {"product" : product_uuid, "quantity" : quantity}
     except:
         return False
