@@ -12,7 +12,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class StoreSerializer(serializers.ModelSerializer):
-    products = ProductSerializer(many = True)
+    products = ProductSerializer(many = True,  read_only = True)
     class Meta:
         model = Store
         fields = ["store_id","store_uuid","store_name","products"]
