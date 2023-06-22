@@ -118,7 +118,7 @@ class TestMaterialViewSet(APITestCase):
     Material Restock View Test
     """
     def test_material_restock_get_view(self):
-        url = reverse("materialrestock", kwargs={"store_uuid":self.uuid,"material_stock_uuid":self.uuid})
+        url = reverse("materialrestock", kwargs={"store_uuid":self.uuid})
         request = self.factory.get(url)
         view  = MaterialRestockViewSet.as_view({"get":"retrieve"})
         force_authenticate(request,user = self.user)
@@ -128,7 +128,7 @@ class TestMaterialViewSet(APITestCase):
         self.assertEqual(response.data[0]["price"], "480.00")
 
     def test_material_restock_get_view_fail(self):
-        url = reverse("materialrestock", kwargs={"store_uuid":self.uuid,"material_stock_uuid":self.uuid})
+        url = reverse("materialrestock", kwargs={"store_uuid":self.uuid})
         request = self.factory.get(url)
         view  = MaterialRestockViewSet.as_view({"get":"retrieve"})
         force_authenticate(request,user = self.user)
@@ -138,7 +138,7 @@ class TestMaterialViewSet(APITestCase):
 
 
     def test_material_restock_post_view(self):
-        url = reverse("materialrestock", kwargs={"store_uuid":self.uuid,"material_stock_uuid":self.uuid})
+        url = reverse("materialrestock", kwargs={"store_uuid":self.uuid})
         request = self.factory.post(url)
         view  = MaterialRestockViewSet.as_view({"post":"create"})
         force_authenticate(request, user = self.user)
@@ -148,7 +148,7 @@ class TestMaterialViewSet(APITestCase):
         self.assertEqual(response.data[0]["price"], "480.00")
 
     def test_material_restock_post_view_fail(self):
-        url = reverse("materialrestock", kwargs={"store_uuid":self.uuid,"material_stock_uuid":self.uuid})
+        url = reverse("materialrestock", kwargs={"store_uuid":self.uuid})
         request = self.factory.post(url)
         view  = MaterialRestockViewSet.as_view({"post":"create"})
         force_authenticate(request, user = self.user)
