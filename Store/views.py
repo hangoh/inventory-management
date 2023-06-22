@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from .models import Product,Store
 from .serializer.store_serializer import StoreSerializer,ProductSerializer,RemainingCapacitySerializer
 from .services.store_services import (get_stores_service, get_store_service, 
-list_product_service, create_product_service,
+list_product_service, create_product_service, create_store_service,
 product_sales_services)
 
 from IM_server.views import BaseAuthenticatedViewSet
@@ -33,6 +33,12 @@ class StoreViewSet(BaseAuthenticatedViewSet):
             serializedStore = StoreSerializer(store, many=False)
         return Response(serializedStore.data,status=status.HTTP_200_OK)
     
+    def create(self, request):
+        store = create_store_service(request)
+        if not store:
+            return Response({"error":"Fail To Create store"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(StoreSerializer(store,many=False).data, status = status.HTTP_200_OK)
 
 class ProductViewSet(BaseAuthenticatedViewSet):
     queryset = Product.objects.all()
@@ -59,9 +65,10 @@ class ProductCapacityViewSet(BaseAuthenticatedViewSet):
     
     def retrieve(self,request,store_uuid):
         product = list_product_service(request,store_uuid)
+        store = get_store_service(request.user,store_uuid )
         if not product:
             return Response({"error":"No Product"}, status = status.HTTP_404_NOT_FOUND)
-        return Response(RemainingCapacitySerializer(product,many=True).data, status = status.HTTP_200_OK)
+        return Response(RemainingCapacitySerializer(product,many=True,context={'store': store}).data, status = status.HTTP_200_OK)
     
 
 class SalesViewSet(BaseAuthenticatedViewSet):

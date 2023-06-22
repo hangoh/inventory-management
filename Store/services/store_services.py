@@ -21,6 +21,13 @@ def get_store_service(user,uuid):
         return store
     except:
         return False
+    
+def create_store_service(request):
+    try:
+        store = Store.objects.create(user = request.user, store_name = request.data['store_name'])
+        return store
+    except:
+        return False
 
 """
 Product Services
@@ -66,39 +73,22 @@ def calculate_remaining_product_quantity_service(material_quantity,material_stoc
     """
     material_sufficient = True
     quantity = 0
-    current_index = 0
     # only execute the logic below if both material quantity and material stock current capacity array are not empty
     if material_quantity!=[] and material_stock_current_capacity!=[]:
         while material_sufficient:
-            current_index=0
             # loop through material stock current capacity
+            current_index = 0
             for each_stock_capacity in material_stock_current_capacity:
                 # if material stock current capacity minus material quantity is negative, return the current quantity else quantity + 1
                 if not (each_stock_capacity - material_quantity[current_index]>=0):
                     material_sufficient =False
                     return quantity
                 material_stock_current_capacity[current_index] -= material_quantity[current_index]
-                current_index+=1
+                if current_index < len(material_quantity):
+                    current_index+=1
             quantity+=1
     return quantity
 
-"""
-get quantity of product that can be produce before material run out of stock
-"""
-def get_quantity(obj):
-    try:
-        material = MaterialQuantity.objects.filter(product = obj)
-        material_list = list(material.values())
-        material_quantity = []
-        material_stock_current_capacity = []
-        for m in material_list:
-            material_quantity.append(m["quantity"])
-            material = Material.objects.get(material_id = m["ingredient_id"])
-            material_stock_current_capacity.append(MaterialStock.objects.get(material=material).current_capacity)
-        quantity = calculate_remaining_product_quantity_service(material_quantity,material_stock_current_capacity)
-        return quantity
-    except:
-        return 0
 
 """
 services or function related to updating the db for product sales 
