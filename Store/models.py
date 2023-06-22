@@ -12,7 +12,7 @@ class Product(models.Model):
     product_uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
 
     def __str__(self):
-        return self.product_uuid
+        return self.name
 
 
 class Store(models.Model):
@@ -23,4 +23,4 @@ class Store(models.Model):
     store_uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
 
     def __str__(self):
-        return self.store_uuid
+        return self.store_name

@@ -15,7 +15,7 @@ class Material(models.Model):
     material_uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
 
     def __str__(self):
-        return self.material_uuid
+        return self.name
 
 
 class MaterialQuantity(models.Model):
@@ -26,7 +26,7 @@ class MaterialQuantity(models.Model):
     material_quantity_uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
 
     def __str__(self):
-        return self.material_quantity_uuid
+        return self.ingredient.name
 
 
 class MaterialStock(models.Model):
@@ -46,6 +46,6 @@ class MaterialStock(models.Model):
         ]
 
     def __str__(self):
-        return self.material_stock_uuid
+        return self.material.name
 
 
