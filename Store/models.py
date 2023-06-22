@@ -9,12 +9,18 @@ from django.contrib.auth.models import User
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256, validators=[MinLengthValidator(1)])
-    uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
+    product_uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
+
+    def __str__(self):
+        return self.product_uuid
 
 
 class Store(models.Model):
     store_id = models.AutoField(primary_key=True)
     store_name = models.CharField(unique=True,max_length=256, validators=[MinLengthValidator(1)])
-    products = models.ManyToManyField(Product)
+    products = models.ManyToManyField(Product, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
+    store_uuid = models.UUIDField(db_index=True,default=uuid4,editable=False)
+
+    def __str__(self):
+        return self.store_uuid

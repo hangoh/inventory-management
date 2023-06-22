@@ -2,29 +2,34 @@ from rest_framework import serializers
 
 from Material.models import MaterialStock,Material,MaterialQuantity
 from Material.services.material_services import check_for_restock,request_for_restock
-
-class MaterialStockSerializer(serializers.ModelSerializer):
-    capacity_percentage = serializers.SerializerMethodField()
-    class Meta:
-        model  = MaterialStock
-        fields = ["uuid","material","max_capacity","current_capacity", "capacity_percentage"]
-        depth = 1
-    
-    def get_capacity_percentage(self,obj):
-        return "{:.2f}%".format((int(obj.current_capacity)/int(obj.max_capacity))*100)
+from Store.serializer.store_serializer import StoreSerializer,ProductSerializer
 
 
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Material
-        fields = ["uuid", "price", "name"]
+        fields = ["material_id","material_uuid", "price", "name"]
+
+
+class MaterialStockSerializer(serializers.ModelSerializer):
+    material = MaterialSerializer(many = False)
+    store = StoreSerializer(many = False)
+    capacity_percentage = serializers.SerializerMethodField()
+    class Meta:
+        model  = MaterialStock
+        fields = ["material_stock_uuid","store","material","max_capacity","current_capacity", "capacity_percentage"]
+        
+    def get_capacity_percentage(self,obj):
+        return "{:.2f}%".format((int(obj.current_capacity)/int(obj.max_capacity))*100)
 
 
 class MaterialQuantitySerializer(serializers.ModelSerializer):
+    ingredient = MaterialSerializer(many = False)
+    product = ProductSerializer(many = False)
     class Meta:
         model  = MaterialQuantity
-        fields = ["uuid", "quantity", "ingredient", "product"]
-        depth = 1
+        fields = ["material_quantity_uuid", "quantity", "ingredient", "product"]
+ 
 
 
 class MaterialRestockSkeleton(serializers.ModelSerializer):
@@ -34,7 +39,7 @@ class MaterialRestockSkeleton(serializers.ModelSerializer):
         model = MaterialStock
     
     def get_price(self,obj):
-        price = check_for_restock(obj.uuid)
+        price = check_for_restock(obj.material_stock_uuid)
         if price:
            return "{:.2f}".format(price)
         return "-"
@@ -71,5 +76,6 @@ class RestockedSerializer(MaterialRestockSkeleton):
         return super().get_price(obj)
         
     def get_restocked_amount(self,obj):
-        return request_for_restock(obj.uuid)
+        return request_for_restock(obj.material_stock_uuid)
+    
     

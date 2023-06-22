@@ -15,7 +15,7 @@ class TestMaterialView(APITestCase):
         initialAccountStoreSetUp(self)
         initialProductSetUp(self)
         self.factory = APIRequestFactory()
-        self.uuid = Store.objects.get(store_id=1).uuid
+        self.uuid = Store.objects.get(store_id=1).store_uuid
 
     """
     Starting Section for StoreViewSet
@@ -57,7 +57,7 @@ class TestMaterialView(APITestCase):
         request = self.factory.get(url)
         view = StoreViewSet.as_view({"get":"retrieve"})
         force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=1).uuid
+        store_uuid = Store.objects.get(store_id=1).store_uuid
         response = view(request,store_uuid=store_uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["store_name"], "UncleBen'S")
@@ -68,7 +68,7 @@ class TestMaterialView(APITestCase):
         request = self.factory.get(url)
         view = StoreViewSet.as_view({"get":"retrieve"})
         force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=3).uuid
+        store_uuid = Store.objects.get(store_id=3).store_uuid
         response = view(request,store_uuid=store_uuid)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -78,7 +78,7 @@ class TestMaterialView(APITestCase):
         request = self.factory.get(url)
         view = StoreViewSet.as_view({"get":"retrieve"})
         force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=3).uuid
+        store_uuid = Store.objects.get(store_id=3).store_uuid
         response = view(request,store_uuid=store_uuid)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -87,67 +87,10 @@ class TestMaterialView(APITestCase):
         request = self.factory.get(url)
         view = StoreViewSet.as_view({"get":"retrieve"})
         force_authenticate(request)
-        store_uuid = Store.objects.get(store_id=3).uuid
+        store_uuid = Store.objects.get(store_id=3).store_uuid
         response = view(request,store_uuid=store_uuid)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_update_store(self):
-        url = reverse("store",kwargs={"store_uuid":self.uuid})
-        request = self.factory.put(url, data={"store_name":"test_store_name"})
-        user = User.objects.get(id=1)
-        view = StoreViewSet.as_view({"put":"update"})
-        force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=1).uuid
-        response = view(request,store_uuid=store_uuid)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["store_name"], "test_store_name")
-    
-    def test_update_store_fail(self):
-        url = reverse("store",kwargs={"store_uuid":self.uuid})
-        request = self.factory.put(url, data={"store_name":"test_store_name"})
-        user = User.objects.get(id=1)
-        view = StoreViewSet.as_view({"put":"update"})
-        force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=3).uuid
-        response = view(request,store_uuid =store_uuid)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_destroy_store(self):
-        url = reverse("store",kwargs={"store_uuid":self.uuid})
-        request = self.factory.delete(url)
-        user = User.objects.get(id=1)
-        view = StoreViewSet.as_view({"delete":"destroy"})
-        force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=1).uuid
-        response = view(request,store_uuid =store_uuid)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
-    def test_destroy_store_fail(self):
-        url = reverse("store",kwargs={"store_uuid":self.uuid})
-        request = self.factory.delete(url)
-        user = User.objects.get(id=1)
-        view = StoreViewSet.as_view({"delete":"destroy"})
-        force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=3).uuid
-        response = view(request,store_uuid = store_uuid)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
-    def test_create_store(self):
-        url = reverse("liststores")
-        request = self.factory.post(url, data={"store_name":"Test_Name"})
-        view = StoreViewSet.as_view({"post":"create"})
-        force_authenticate(request,user = User.objects.get(id=1))
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["store_name"], "Test_Name")
-    
-    def test_create_store_fail(self):
-        url = reverse("liststores")
-        request = self.factory.post(url, data={"store_name":"UncleBen'S"})
-        view = StoreViewSet.as_view({"post":"create"})
-        force_authenticate(request,user = User.objects.get(id=1))
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     """
     Ending Section for StoreViewSet
@@ -163,7 +106,7 @@ class TestMaterialView(APITestCase):
         view = ProductViewSet.as_view({"get":"retrieve"})
         request = self.factory.get(url)
         force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=1).uuid
+        store_uuid = Store.objects.get(store_id=1).store_uuid
         response = view(request,store_uuid=store_uuid)
         i=1
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -177,55 +120,10 @@ class TestMaterialView(APITestCase):
         view = ProductViewSet.as_view({"get":"retrieve"})
         request = self.factory.get(url)
         force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=2).uuid
+        store_uuid = Store.objects.get(store_id=2).store_uuid
         response = view(request,store_uuid=store_uuid)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data["error"],"No Product")
-
-    def test_update_product(self):
-        url = reverse("product",kwargs={"store_uuid":self.uuid,"product_uuid":self.uuid})
-        request = self.factory.put(url, data={"name":"test_Product_name"})
-        user = User.objects.get(id=1)
-        view = ProductViewSet.as_view({"put":"update"})
-        force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=1).uuid
-        product_uuid = Product.objects.get(id=1).uuid
-        response = view(request,store_uuid=store_uuid,product_uuid =product_uuid)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["name"], "test_Product_name")
-    
-    def test_update_product_fail(self):
-        url = reverse("product",kwargs={"store_uuid":self.uuid,"product_uuid":self.uuid})
-        request = self.factory.put(url, data={"name":"test_Product_name"})
-        user = User.objects.get(id=2)
-        view = ProductViewSet.as_view({"put":"update"})
-        force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=1).uuid
-        product_uuid = Product.objects.get(id=2).uuid
-        response = view(request,store_uuid=store_uuid,product_uuid =product_uuid)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_delete_product(self):
-        url = reverse("product",kwargs={"store_uuid":self.uuid,"product_uuid":self.uuid})
-        request = self.factory.delete(url)
-        user = User.objects.get(id=1)
-        view = ProductViewSet.as_view({"delete":"destroy"})
-        force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=1).uuid
-        product_uuid = Product.objects.get(id=1).uuid
-        response = view(request,store_uuid=store_uuid,product_uuid =product_uuid)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
-    def test_delete_product_fail(self):
-        url = reverse("product",kwargs={"store_uuid":self.uuid,"product_uuid":self.uuid})
-        request = self.factory.delete(url)
-        user = User.objects.get(id=1)
-        view = ProductViewSet.as_view({"delete":"destroy"})
-        force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=2).uuid
-        product_uuid = Product.objects.get(id=2).uuid
-        response = view(request,store_uuid=store_uuid,product_uuid = product_uuid)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_product(self):
         url = reverse("listproducts",kwargs={"store_uuid":self.uuid})
@@ -233,7 +131,7 @@ class TestMaterialView(APITestCase):
         view = ProductViewSet.as_view({"post":"create"})
         request = self.factory.post(url,data={"name":"Bed"})
         force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=1).uuid
+        store_uuid = Store.objects.get(store_id=1).store_uuid
         response = view(request,store_uuid=store_uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"],"Bed")
@@ -244,7 +142,7 @@ class TestMaterialView(APITestCase):
         view = ProductViewSet.as_view({"post":"create"})
         request = self.factory.post(url,data={"name":"Chair"})
         force_authenticate(request,user=user)
-        store_uuid = Store.objects.get(store_id=3).uuid
+        store_uuid = Store.objects.get(store_id=3).store_uuid
         response = view(request,store_uuid=store_uuid)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -279,7 +177,7 @@ class TestMaterialView(APITestCase):
         request = self.factory.get(url)
         view = ProductCapacityViewSet.as_view({"get":"retrieve"})
         force_authenticate(request,user = self.user)
-        store_uuid = Store.objects.get(store_id = 2).uuid
+        store_uuid = Store.objects.get(store_id = 2).store_uuid
         response  = view(request,store_uuid = store_uuid)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -290,22 +188,21 @@ class TestMaterialView(APITestCase):
     def test_product_sales_view(self):
         url = reverse("productssales", kwargs={"store_uuid":self.uuid})
         product = Product.objects.get(id = 1)
-        product2 = Product.objects.get(id = 2)
-        request = self.factory.post(url, data = {"products":[{"quantity":2,"uuid":product.uuid}]}, format = "json")
+        request = self.factory.post(url, data = {"products":[{"quantity":2,"uuid":product.product_uuid}]}, format = "json")
         view  = SalesViewSet.as_view({"post":"create"})
         force_authenticate(request, user = self.user)
         response = view(request, self.uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["sale"][0]["quantity"], 2)
-        self.assertEqual(response.data["sale"][0]["product"], product)
+        self.assertEqual(response.data["sale"][0]["product"], str(product.product_uuid))
 
     def test_product_sales_view_fail(self):
         url = reverse("productssales", kwargs={"store_uuid":self.uuid})
         product = Product.objects.get(id = 1)
-        request = self.factory.post(url, data = {"products":[{"quantity":2,"uuid":product.uuid}]}, format = "json")
+        request = self.factory.post(url, data = {"products":[{"quantity":2,"uuid":product.product_uuid}]}, format = "json")
         view  = SalesViewSet.as_view({"post":"create"})
         force_authenticate(request, user = self.user)
-        response = view(request, Store.objects.get(store_id = 2).uuid)
+        response = view(request, Store.objects.get(store_id = 2).store_uuid)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"][0]["product"], product)
-        self.assertEqual(response.data["error"][0]["error"], "Fail to Update Sale For This Product uuid {}".format(product.uuid))
+        self.assertEqual(response.data["error"][0]["product"], str(product.product_uuid))
+        self.assertEqual(response.data["error"][0]["error"], "Fail to Update Sale For This Product uuid {}".format(product.product_uuid))

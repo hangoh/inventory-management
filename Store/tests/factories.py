@@ -1,7 +1,7 @@
 import factory
 from factory.django import DjangoModelFactory
 
-from Account.tests.tests_model import UserModelFactory
+from Account.tests.factories import UserModelFactory
 from Material.models import Store
 from Material.models import Product
 
