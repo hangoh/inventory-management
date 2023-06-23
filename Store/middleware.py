@@ -15,8 +15,9 @@ def return_response(response):
     return response
 
 def check_store(user,store_uuid):
+    if user is None:
+        return Response({"error":"Anonymous User"}, status = status.HTTP_403_FORBIDDEN)
     store = Store.objects.get(store_uuid = store_uuid)
-    user = user
     if not (store.user == user):
         return Response({"error":"This store is not associate with you"}, status = status.HTTP_403_FORBIDDEN)
     return None
@@ -31,6 +32,7 @@ class CheckStoreMiddleware:
         try:
             store_uuid = resolved_path.kwargs.get("store_uuid")
             header_token = request.META.get('HTTP_AUTHORIZATION', None)
+            user = None 
             if header_token is not None:
                 try:
                     token = header_token.split()
