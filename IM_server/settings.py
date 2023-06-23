@@ -15,7 +15,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -49,6 +48,8 @@ INSTALLED_APPS = [
     "Store"
 ]
 
+WSGI_APPLICATION = 'IM_server.wsgi.application'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Store.middleware.CheckStoreMiddleware'
 ]
 
 REST_FRAMEWORK = {
@@ -84,7 +86,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'IM_server.wsgi.application'
+
 
 
 # Database
