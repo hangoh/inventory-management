@@ -66,17 +66,19 @@ class MaterialRestockViewSet(BaseAuthenticatedViewSet):
     serializer_class = MaterialRestockSerializer
 
     def retrieve(self, request, store_uuid):
-        try:
+        
             store = get_store_service(request.user, store_uuid)
             material_stock = MaterialStock.objects.filter(store = store)
             if not material_stock:
                 return Response({"error":"No Material Stock Found"},
                             status=status.HTTP_404_NOT_FOUND)
-            return Response(MaterialRestockSerializer(material_stock, many = True).data, 
+            serialized_objs = MaterialRestockSerializer(material_stock, many = True).data
+            total_price = [obj["price"] for obj in serialized_objs if obj["price"]!="-"]
+            return Response({"total price":sum(total_price) ,"restock material":serialized_objs}, 
                             status = status.HTTP_200_OK)
-        except:
-            return Response({"error":"No Material Stock Found"},
-                            status=status.HTTP_404_NOT_FOUND)
+        # except:
+        #     return Response({"error":"No Material Stock Found"},
+        #                     status=status.HTTP_404_NOT_FOUND)
         
     def create(self, request, store_uuid):
         try:
@@ -85,7 +87,9 @@ class MaterialRestockViewSet(BaseAuthenticatedViewSet):
             if not material_stock:
                 return Response({"error":"Fail To Restock"},
                             status=status.HTTP_400_BAD_REQUEST)
-            return Response(RestockedSerializer(material_stock,many = True).data, 
+            serialized_objs = RestockedSerializer(material_stock,many = True).data
+            total_price = [obj["price"] for obj in serialized_objs if obj["price"]!="-"]
+            return Response({"total price":sum(total_price) ,"restock material":serialized_objs}, 
                             status = status.HTTP_200_OK)
         except:
              return Response({"error":"Fail To Restock"},
