@@ -1,21 +1,22 @@
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from .models import MaterialStock,Material,MaterialQuantity
 from .serializer.MaterialSerializer import MaterialStockSerializer, MaterialSerializer, MaterialQuantitySerializer, MaterialRestockSerializer, RestockedSerializer
 from .services.material_services import ( list_material_stock_service, create_material_stock_service ,list_material_quantity_service, create_material_quantity_service)
 
 from Store.services.store_services import get_store_service
-from IM_server.views import BaseAuthenticatedViewSet
+
 
 # Create your views here.
-class MaterialViewSet(BaseAuthenticatedViewSet):
+class MaterialViewSet(ModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
     lookup_field = "material_uuid"
     
 
-class MaterialStockViewSet(BaseAuthenticatedViewSet):
+class MaterialStockViewSet(ModelViewSet):
     queryset = MaterialStock.objects.all()
     serializer_class = MaterialStockSerializer
     lookup_field = "material_stock_uuid"
@@ -39,7 +40,7 @@ class MaterialStockViewSet(BaseAuthenticatedViewSet):
 
     
 
-class MaterialQuantityViewSet(BaseAuthenticatedViewSet):
+class MaterialQuantityViewSet(ModelViewSet):
     queryset = MaterialQuantity.objects.all()
     serializer_class = MaterialQuantitySerializer
     lookup_field = "material_quantity_uuid"
@@ -61,7 +62,7 @@ class MaterialQuantityViewSet(BaseAuthenticatedViewSet):
                         status = status.HTTP_200_OK)
     
 
-class MaterialRestockViewSet(BaseAuthenticatedViewSet):
+class MaterialRestockViewSet(ModelViewSet):
     queryset = MaterialStock.objects.all()
     serializer_class = MaterialRestockSerializer
 

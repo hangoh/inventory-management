@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from .models import Product,Store
 from .serializer.store_serializer import StoreSerializer,ProductSerializer,RemainingCapacitySerializer
@@ -7,12 +8,11 @@ from .services.store_services import (get_stores_service, get_store_service,
 list_product_service, create_product_service, create_store_service,
 product_sales_services)
 
-from IM_server.views import BaseAuthenticatedViewSet
 from Material.models import MaterialStock
 from Material.serializer.MaterialSerializer import MaterialStockSerializer
 
 # Create your views here.
-class StoreViewSet(BaseAuthenticatedViewSet):
+class StoreViewSet(ModelViewSet):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
     lookup_field = "store_uuid"
@@ -40,7 +40,7 @@ class StoreViewSet(BaseAuthenticatedViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(StoreSerializer(store,many=False).data, status = status.HTTP_200_OK)
 
-class ProductViewSet(BaseAuthenticatedViewSet):
+class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = "product_uuid"
@@ -59,7 +59,7 @@ class ProductViewSet(BaseAuthenticatedViewSet):
         return Response(ProductSerializer(product,many=True).data, status = status.HTTP_200_OK)
     
    
-class ProductCapacityViewSet(BaseAuthenticatedViewSet):
+class ProductCapacityViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = RemainingCapacitySerializer
     
@@ -71,7 +71,7 @@ class ProductCapacityViewSet(BaseAuthenticatedViewSet):
         return Response(RemainingCapacitySerializer(product,many=True,context={'store': store}).data, status = status.HTTP_200_OK)
     
 
-class SalesViewSet(BaseAuthenticatedViewSet):
+class SalesViewSet(ModelViewSet):
     queryset = MaterialStock.objects.all()
     serializer_class = MaterialStockSerializer
 

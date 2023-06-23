@@ -5,14 +5,14 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response 
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.authtoken.views import ObtainAuthToken
 
 from .serializer.AccountSerializer import UserSerializer, UserAuthSerializer 
 from .services.account_services import get_user,create_user,sign_out_user
 
-from IM_server.views import BaseAuthenticatedViewSet
 
 # Create your views here.
-class UserViewSet(BaseAuthenticatedViewSet):
+class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -41,6 +41,7 @@ class UserCreateViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes=[AllowAny]
+    authentication_classes=[]
 
     def create(self,request):
         serializer = UserAuthSerializer(data=request.data)
@@ -50,5 +51,9 @@ class UserCreateViewSet(ModelViewSet):
                 return Response(token.key, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+
+class ObtainAuthTokenView(ObtainAuthToken):
+    permission_classes=[AllowAny]
+    authentication_classes=[]
 
 
