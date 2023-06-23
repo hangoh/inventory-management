@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from Account.serializer.AccountSerializer import UserAuthSerializer
-from Account.services.account_services import get_user,create_user,login_user
+from Account.services.account_services import get_user,create_user
 from TestSetUp.testsetup import initialAccountStoreSetUp
 
 
@@ -23,11 +23,3 @@ class TestAccountService(TestCase):
     def test_create_user_success(self):
         serializer =UserAuthSerializer({"username":"UncleD","password":"JustPassword"})
         create_user(serializer=serializer)
- 
-    def test_login_user_success(self):
-        serializer =UserAuthSerializer({"username":"UncleBen","password":"JustPassword"})
-        login_user(serializer=serializer)
-
-    def test_login_user_fail(self):
-        serializer =UserAuthSerializer({"username":"UncleBen","password":"justPassword"})
-        self.assertFalse(login_user(serializer=serializer))

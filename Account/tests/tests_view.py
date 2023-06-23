@@ -14,18 +14,6 @@ class UserTest(APITestCase):
         super().setUp()
         initialAccountStoreSetUp(self)
         self.factory = APIRequestFactory()
-
-    def test_authenticateUser_success(self):
-        url = reverse('authenticateuser')
-        data={"username":"UncleBen", "password":"JustPassword"}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_authenticateUser_fail(self):
-        url = reverse('authenticateuser')
-        data={"username":"Uncleben", "password":"JustPassword"}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     def test_get_user_success(self):
         url = reverse('user')

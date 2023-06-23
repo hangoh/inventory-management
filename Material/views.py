@@ -73,7 +73,7 @@ class MaterialRestockViewSet(BaseAuthenticatedViewSet):
                 return Response({"error":"No Material Stock Found"},
                             status=status.HTTP_404_NOT_FOUND)
             serialized_objs = MaterialRestockSerializer(material_stock, many = True).data
-            total_price = [obj["price"] for obj in serialized_objs if obj["price"]!="-"]
+            total_price = [float(obj["price"]) for obj in serialized_objs if obj["price"]!="-"]
             return Response({"total price":sum(total_price) ,"restock material":serialized_objs}, 
                             status = status.HTTP_200_OK)
         except:
@@ -88,7 +88,7 @@ class MaterialRestockViewSet(BaseAuthenticatedViewSet):
                 return Response({"error":"Fail To Restock"},
                             status=status.HTTP_400_BAD_REQUEST)
             serialized_objs = RestockedSerializer(material_stock,many = True).data
-            total_price = [obj["price"] for obj in serialized_objs if obj["price"]!="-"]
+            total_price = [float(obj["price"]) for obj in serialized_objs if obj["price"]!="-"]
             return Response({"total price":sum(total_price) ,"restock material":serialized_objs}, 
                             status = status.HTTP_200_OK)
         except:
