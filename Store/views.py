@@ -55,8 +55,8 @@ class ProductViewSet(ModelViewSet):
     def retrieve(self,request,store_uuid):
         product = list_product_service(request,store_uuid)
         if not product:
-            return Response({"error":"No Product"}, status=status.HTTP_404_NOT_FOUND)
-        return Response(ProductSerializer(product,many=True).data, status = status.HTTP_200_OK)
+            return Response({"error":"No Product"}, status = status.HTTP_404_NOT_FOUND)
+        return Response(ProductSerializer(product, many = True).data, status = status.HTTP_200_OK)
     
    
 class ProductCapacityViewSet(ModelViewSet):
@@ -68,7 +68,7 @@ class ProductCapacityViewSet(ModelViewSet):
         store = get_store_service(request.user,store_uuid )
         if not product:
             return Response({"error":"No Product"}, status = status.HTTP_404_NOT_FOUND)
-        return Response(RemainingCapacitySerializer(product,many=True,context={'store': store}).data, status = status.HTTP_200_OK)
+        return Response(RemainingCapacitySerializer(product, many = True,context={'store': store}).data, status = status.HTTP_200_OK)
     
 
 class SalesViewSet(ModelViewSet):

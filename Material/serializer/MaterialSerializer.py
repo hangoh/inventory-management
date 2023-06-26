@@ -15,6 +15,7 @@ class MaterialStockSerializer(serializers.ModelSerializer):
     material = MaterialSerializer(many = False, read_only = True)
     store = StoreSerializer(many = False, read_only = True)
     capacity_percentage = serializers.SerializerMethodField()
+
     class Meta:
         model  = MaterialStock
         fields = ["material_stock_uuid","store","material","max_capacity","current_capacity", "capacity_percentage"]
@@ -26,11 +27,11 @@ class MaterialStockSerializer(serializers.ModelSerializer):
 class MaterialQuantitySerializer(serializers.ModelSerializer):
     ingredient = MaterialSerializer(many = False, read_only = True)
     product = ProductSerializer(many = False, read_only = True)
+
     class Meta:
         model  = MaterialQuantity
         fields = ["material_quantity_uuid", "quantity", "ingredient", "product"]
  
-
 
 class MaterialRestockSkeleton(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
