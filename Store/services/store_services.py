@@ -40,10 +40,10 @@ def list_product_service(request,store_uuid):
     store = get_store_service(request.user,store_uuid)
     if not store:
         return False
-    product = store.products.all()
-    if not product:
+    products = store.products.all()
+    if not products:
         return False
-    return product
+    return products
 
 # get a product of a specific id associate with a specific store
 def get_product_service(request,store_uuid,product_uuid):
@@ -67,7 +67,7 @@ def create_product_service(request,store_uuid):
     return product
 
 # calculate the quantity of each product that can be produce before any material become insufficeint
-def calculate_remaining_product_quantity_service(material_quantity,material_stock_current_capacity):
+def calculate_remaining_product_quantity_service(material_quantity, material_stock_current_capacity):
     """
     The logic is that if any of the number in material_stock_current_capacity 
     is less than(<) zero than it will return the current quantity since all material should 
@@ -76,19 +76,19 @@ def calculate_remaining_product_quantity_service(material_quantity,material_stoc
     material_sufficient = True
     quantity = 0
     # only execute the logic below if both material quantity and material stock current capacity array are not empty
-    if material_quantity!=[] and material_stock_current_capacity!=[]:
+    if material_quantity != [] and material_stock_current_capacity != []:
         while material_sufficient:
             # loop through material stock current capacity
             current_index = 0
             for each_stock_capacity in material_stock_current_capacity:
                 # if material stock current capacity minus material quantity is negative, return the current quantity else quantity + 1
-                if not (each_stock_capacity - material_quantity[current_index]>=0):
-                    material_sufficient =False
+                if not (each_stock_capacity - material_quantity[current_index] >= 0):
+                    material_sufficient = False
                     return quantity
                 material_stock_current_capacity[current_index] -= material_quantity[current_index]
                 if current_index < len(material_quantity):
-                    current_index+=1
-            quantity+=1
+                    current_index += 1
+            quantity += 1
     return quantity
 
 
@@ -105,18 +105,18 @@ def check_if_quantity_sold_is_valid(material_quantity_array, store):
     """
     for material_quantity in material_quantity_array:
         material_stock = MaterialStock.objects.get(material = material_quantity["material"], store = store)
-        if material_stock.current_capacity-material_quantity["quantity"]<0:
+        if material_stock.current_capacity - material_quantity["quantity"]<0:
             return False
     return True
 
-def save_quantity_sold_changes_to_db(material_quantity_array,store):
+def save_quantity_sold_changes_to_db(material_quantity_array, store):
     """
     loop through the material_quantity_array and get the associate material stock objects then
     abstract the quantity from material stock current capacity then save the db changes
     """
     for material_quantity in material_quantity_array:
         material_stock = MaterialStock.objects.get(material = material_quantity["material"], store = store)
-        material_stock.current_capacity = material_stock.current_capacity-material_quantity["quantity"]
+        material_stock.current_capacity = material_stock.current_capacity - material_quantity["quantity"]
         material_stock.save()
             
 # get the quantity of item sold from a post request and than abstract all material quantity of the product from material stock
@@ -129,7 +129,7 @@ def calculate_item_sold(request, quantity, store_uuid, product_uuid):
     try:
         material_quantity_array=[]
         # get all material required by the product
-        product = get_product_service(request,store_uuid,product_uuid)
+        product = get_product_service(request, store_uuid, product_uuid)
         materials = MaterialQuantity.objects.filter(product = product)
         store = Store.objects.get(store_uuid = store_uuid)
         if not materials:
@@ -137,16 +137,16 @@ def calculate_item_sold(request, quantity, store_uuid, product_uuid):
         # loop through the materials and append material and quantity set 
         # {"material" : material,"quantity" : material.quantity*quantity} into the array
         for material in materials:
-            material_quantity_array.append({"material" : material.ingredient,"quantity" : int(material.quantity*quantity)})
+            material_quantity_array.append({"material" : material.ingredient, "quantity" : int(material.quantity*quantity)})
         if not check_if_quantity_sold_is_valid(material_quantity_array, store):
             return False
-        save_quantity_sold_changes_to_db(material_quantity_array,store)
+        save_quantity_sold_changes_to_db(material_quantity_array, store)
         return {"product" : product_uuid, "quantity" : quantity}
     except:
         return False
     
 # service to handle request to update material stock according to sale
-def product_sales_services(request,store_uuid):
+def product_sales_services(request, store_uuid):
     products = request.data['products']
     response = {"sale":[],"error":[]}
     # loop through all the product from POST request to update each material stock accordingly
