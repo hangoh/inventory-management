@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    .navbarcomponent{
+        display: grid;
+        grid-template-columns: 25% 25% 25%;
+    }
+    #store_name_edit_form{
+        display: none;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+</style>
+<body>
+    {% if store%}
+        <h4><a href="{% url 'liststorestemplate' %}">back</a></h4>
+        <h1>{{store.store_name}}</h1>
+        <div id="store_name_edit_form">
+            <p><small id="store_name_error" style="color:red">Invalid Store name</small></p>
+            <label for="store_name">Store Name:</label>
+            <input type="text" name="store_name" id="store_name_edit_input">
+            <div>
+                <button type="button" onclick="edit_store_name()">update</button>
+                <button type="button" style="color:red" onclick="cancel_edit_store_name()">cancel</button>
+            </div>
+        </div>
+        <button type="button" id="edit_form_button" onclick="display_edit_store_name_form()">edit store name</button>
+        <div class="navbarcomponent">
+            <h5><a href="{% url 'materialstocktemplate' store_uuid=store.store_uuid %}">View Store MaterialStock</a></h5>
+        </div>
+    {%else%}
+        <h1>{{request.user}}'s Stores</h1>
+        <button type="button" onclick="logout()">Logout</button>
+        <div class="navbarcomponent">
+            <h5><a href="{% url 'createstoretemplate' %}">Add New Store</a></h5>
+            <h5><a href="{% url 'creatematerialtemplate' %}">Add New Material</a></h5>
+            <h5><a href="{% url 'materialedittemplate' %}">Edit Material</a></h5>
+        </div>
+    {%endif%}
+    
+        
+
+    {% for store in stores %}
+        <ul>
+            <li> 
+                <a href='{% url "getstoretemplate" store_uuid=store.store_uuid %}' style="margin-right: 30px;">{{store.store_name}}</a>
+                <button type="button" style="color:red;" onclick='delete_store("{% url 'storeputdeletetemplate' store_uuid=store.store_uuid %}")'>delete</button>
+            </li>
+        </ul>
+    {% endfor %}
+
+    {% if store%}
+        <p>store id: {{store.store_id}}</p>
+        <p>store uuid: {{store.store_uuid}}</p>
+        <p>store name: {{store.store_name}}</p>
+        <br>
+        <div class="navbarcomponent">
+            <a href="{% url 'createproducttemplate' store_uuid=store.store_uuid %}">Add New Product</a>
+            <a href="{% url 'productcapacitytemplate' store_uuid=store.store_uuid %}">View Product Capacity And Update Sales</a>
+        </div>
+        <p>products: </p>
+        {% for product in store.products%}
+            <ul>
+                <li>
+                    <div><h4>{{product.name}}</h4></div>
+                    <p>product id: {{product.id}}</p>
+                    <p>product uuid: {{product.product_uuid}}</p>
+                    <button onclick='to_edit_product_page("{% url 'productedittemplate' store_uuid=store.store_uuid product_uuid=product.product_uuid%}")' type="button">edit</button>
+                </li>
+            </ul>
+        {%endfor%}
+    {%endif%}
+
+</body>
+<script>
+    function logout(){
+        var xhr = new XMLHttpRequest();
+        var url = "{% url 'logouttemplate'%}"
+        xhr.open("DELETE", url, true)
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onload = function() {
+            if(xhr.readyState === 4){
+                window.location.replace("{% url 'authenticateusertemplate'%}")
+            }
+        }
+        xhr.send()
+    }
+
+    function cancel_edit_store_name(){
+        document.getElementById("store_name_error").style.display = "none";
+        document.getElementById("edit_form_button" ).style.display = "block"
+        document.getElementById("store_name_edit_form").style.display = "none"
+        document.getElementById("store_name_edit_input").value = ""
+    }
+
+    function display_edit_store_name_form(){
+        document.getElementById("edit_form_button" ).style.display = "none"
+        document.getElementById("store_name_edit_form").style.display = "block"
+        document.getElementById("store_name_error").style.display = "none";
+    }
+
+    function edit_store_name(){
+        var xhr = new XMLHttpRequest();
+        var url = "http://127.0.0.1:8000/store/"+"{{store.store_uuid}}"+"/edit-delete"
+        var formData = new FormData()
+        formData.append("store_name", document.getElementById("store_name_edit_input").value)
+        xhr.open("put", url, true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                if(JSON.parse(xhr.responseText)){
+                    responseText = JSON.parse(xhr.responseText)
+                    if (responseText["store_uuid"]){
+                        cancel_edit_store_name()
+                        window.location.reload();
+                    }
+                    else{
+                        console.log("shit")
+                        document.getElementById("store_name_error").style.display = "block";
+                    }
+                }
+            }
+        }
+        
+        xhr.send(formData)
+    }
+
+    function delete_store(url){
+        var xhr = new XMLHttpRequest();
+        xhr.open("delete", url, true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                    window.location.reload();
+                
+            }
+        }
+        
+        xhr.send()
+    }
+
+    function to_edit_product_page(url){
+        window.location.replace(url);
+    }
+
+    let getCookie = (name)=>{
+        var cookieValue = null;
+        if(document.cookie && document.cookie !== ''){
+          var cookies = document.cookie.split(";");
+          for(var i=0; i<cookies.length; i++){
+            var cookie = cookies[i].trim();
+            if(cookie.substring(0, name.length+1)===(name+'=')){
+              cookieValue = decodeURIComponent(cookie.substring(name.length+1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+</script>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IM-server</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    
+</style>
+{% load rest_framework %}
+<body>
+    <h4><a href="{% url 'authenticateusertemplate' %}">back to login</a></h4>
+    <h1>Register Page</h1>
+    <form action="{% url 'registertemplate'  %}" method="POST">
+        {%csrf_token%}
+        {% if error %}
+            <p style="color: red;">{{error}}</p>
+        {% endif %}
+        {% render_form serializer %}
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>

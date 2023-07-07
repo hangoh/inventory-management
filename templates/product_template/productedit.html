@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Edit</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+    small{
+        display: none; 
+        color:red;
+    }
+</style>
+<body>
+    {% load rest_framework %}
+    <h4><a href="{% url 'getstoretemplate' store_uuid=store_uuid %}">back</a></h4>
+    <h1>Edit Product</h1>
+    {% if error %}
+        <h3>{{error}}</h3>
+    {%else%}
+        <h3>Product: </h3>
+        <small  id="product_name_input_error">This Field Is Empty</small>
+        <label for="product">Product:</label>
+        <input type="text" name="product" value="{{product.name}}" id="product_name_input">
+        <button type="button" onclick='update_product_name("{% url 'productputdeletetemplate' store_uuid=store_uuid product_uuid=product.product_uuid%}")'>update</button>
+        <div style="margin-top: 40px; display: grid; grid-template-columns: 60% 40%;">
+            <h3 >Material Quantity: </h3>
+            <button type="button" style="margin: auto;" onclick="to_create_material_quantity_page()"> Add New Material Quantity</button>
+        </div>
+        {% if material_quantity %}
+            <div style="margin-bottom: 50px;">
+                {% for m_q in material_quantity %}
+                    <ul>
+                        <li>
+                            <label for="material_quantity_{{m_q.material_quantity_uuid}}">{{m_q.ingredient.name}}: </label>
+                            <input type="number" name="material_quantity_{{m_q.material_quantity_uuid}}" value="{{m_q.quantity}}" id="material_quantity_{{m_q.material_quantity_uuid}}_input">
+                            <button type="button" onclick='update_material_quantity("{{m_q.material_quantity_uuid}}", "{% url 'materialquantityputdeletetemplate' store_uuid=store_uuid material_quantity_uuid=m_q.material_quantity_uuid%}")'>update</button>
+                            <button type="button" style="color:red;" onclick='delete_material_quantity("{% url 'materialquantityputdeletetemplate' store_uuid=store_uuid material_quantity_uuid=m_q.material_quantity_uuid%}")'>delete {{m_q.ingredient.name}}</button>
+                            <small id="material_quantity_{{m_q.material_quantity_uuid}}_error"></small>
+                        </li>
+                    </ul>
+                {% endfor %}
+            </div>
+        {% else %}
+            <h5>No Material Quantity Found For This Peoduct, Try Creating One</h5>
+        {% endif %}
+        <button type="button" style="color:red;" onclick='delete_product("{% url 'productputdeletetemplate' store_uuid=store_uuid product_uuid=product.product_uuid%}")'>delete {{product.name}}</button>
+    {% endif %}
+</body>
+<script>
+    function update_product_name(url){
+        var name = document.getElementById("product_name_input").value
+        var xhr = new XMLHttpRequest();
+        var url = url
+        var formData = new FormData()
+        formData.append("name", name)
+        xhr.open("put", url, true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                if(JSON.parse(xhr.responseText)){
+                    responseText = JSON.parse(xhr.responseText)
+                    if(responseText["error"]){
+                        document.getElementById("product_name_input_error").style.display = "block"
+                    }else{
+                        window.location.reload()
+                    }
+                }
+            }
+        }
+        
+        xhr.send(formData)
+    }
+
+    function delete_product(url){
+        var xhr = new XMLHttpRequest();
+        var url = url
+        xhr.open("delete", url, true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                window.location.replace("{% url 'getstoretemplate' store_uuid=store_uuid %}")
+            }
+        }
+        
+        xhr.send()
+    }
+
+    function update_material_quantity(material_quantity_uuid, url){
+        var quantity = document.getElementById(`material_quantity_${material_quantity_uuid}_input`).value
+        var xhr = new XMLHttpRequest();
+        var url = url
+        var formData = new FormData()
+        formData.append("quantity", quantity)
+        xhr.open("put", url, true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                if(JSON.parse(xhr.responseText)){
+                    responseText = JSON.parse(xhr.responseText)
+                    if(responseText["error"]) {
+                        document.getElementById(`material_quantity_${material_quantity_uuid}_error`).innerHTML = responseText["error"]
+                        document.getElementById(`material_quantity_${material_quantity_uuid}_error`).style.display = "block"
+                    }else{
+                        window.location.reload()
+                    }
+                }
+            }
+        }
+        
+        xhr.send(formData)
+    }
+
+    function delete_material_quantity(url){
+        var xhr = new XMLHttpRequest();
+        var url = url
+        xhr.open("delete", url, true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                window.location.reload()
+            }
+        }
+        
+        xhr.send()
+    }
+
+    function to_create_material_quantity_page(){
+        window.location.replace("{% url 'creatematerialquantitytemplate' store_uuid=store_uuid product_uuid=product.product_uuid%}")
+    }
+    
+    let getCookie = (name)=>{
+        var cookieValue = null;
+        if(document.cookie && document.cookie !== ''){
+          var cookies = document.cookie.split(";");
+          for(var i=0; i<cookies.length; i++){
+            var cookie = cookies[i].trim();
+            if(cookie.substring(0, name.length+1)===(name+'=')){
+              cookieValue = decodeURIComponent(cookie.substring(name.length+1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+</script>
+</html>

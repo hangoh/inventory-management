@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Material</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+</style>
+<body>
+    {% load rest_framework %}
+    <h4><a href="{% url 'liststorestemplate' %}">back</a></h4>
+    <h1>New Material</h1>
+    <form action="{% url 'creatematerialtemplate' %}" method="post">
+        {% csrf_token %}
+        {% if error %}
+            <p style="color: red;">{{error}}</p>
+        {% endif %}
+        {% render_form serializer %}
+        <button type="submit">create</button>
+    </form>
+</body>
+</html>
