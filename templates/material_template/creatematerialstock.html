@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Material Stock</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+</style>
+<body>
+    {% load rest_framework %}
+    <h4><a href="{% url 'materialstocktemplate' store_uuid=store_uuid %}">back</a></h4>
+    <h1>New Material Stock</h1>
+    <form action="{% url 'creatematerialstocktemplate' store_uuid=store_uuid %}" method="post">
+        {% csrf_token %}
+        {% if error %}
+            <p style="color: red;">{{error}}</p>
+        {% endif %}
+        <div>
+            <label for="material_uuid">material:</label>
+            <select name="material_uuid">
+                {% for m in material %}
+                    <option value={{m.material_uuid}}>{{m.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="max_capacity">max capacity</label>
+            <input type="number" name="max_capacity">
+        </div>
+        <div>
+            <label for="current_capacity">current capacity</label>
+            <input type="number" name="current_capacity">
+        </div>
+        <button type="submit">create</button>
+    </form>
+</body>
+</html>

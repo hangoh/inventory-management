@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Material Quantity</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+    small{
+        color:red;
+    }
+</style>
+<body>
+    {% load rest_framework %}
+    <h4><a href="{% url 'productedittemplate' store_uuid=store_uuid product_uuid=product.product_uuid%}">back</a></h4>
+    <h1>New Material Quantity For {{product.name}}</h1>
+    {% if materials %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {% if error %}
+                <small>{{error}}</small>
+            {% endif %}
+            <div>
+                <label for="material_uuid">Material:</label>
+                <select name="material_uuid">
+                    {% for material in materials %}
+                        <option value="{{material.material_uuid}}">{{material.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="quantity">Quantity</label>
+                <input type="number" min="1" name="quantity">
+            </div>
+            <button type="submit">Add</button>
+        </form>
+    {% else %}
+        <h4>You had used up all types of material you owned for this product.</h4>
+        <h4>Try adding more material stock</h4>
+    {% endif %}
+</body>
+</html>

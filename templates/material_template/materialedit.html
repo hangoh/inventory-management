@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Material Price</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+    small{
+        display: none;
+        color: red;
+    }
+</style>
+<body>
+    <h4><a href="{% url 'liststorestemplate' %}">back</a></h4>
+    <h1>Edit Material</h1>
+    {% if materials %}
+        {% for material in materials %}
+            <div>
+                <ul>
+                    <li>
+                        <h4>{{material.name}}</h4>
+                        <small id="error_{{material.material_uuid}}">Name Field Should Not Be Blank/ Price Should Be Larger than or equal 0.01</small>
+                        <div>
+                            <label for="material_name" >Name: </label>
+                            <input type="text" id="material_{{material.material_uuid}}_name_input" name="material_name" value="{{material.name}}">
+                        </div>
+                        <div>
+                            <label for="material_price">Price: </label>
+                            <input type="number" id="material_{{material.material_uuid}}_price_input" name="material_price" min="0.01" value="{{material.price}}">
+                        </div>
+                        <button type="button" onclick='update_material("{{material.material_uuid}}", "{% url 'materialputtemplate' material_uuid=material.material_uuid %}" )'>Update</button>
+                    </li>
+                </ul>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h3>No Material, Try Creating One</h3>
+    {% endif %}
+</body>
+<script>
+    function update_material(material_uuid, url){
+        var xhr = new XMLHttpRequest();
+        var formData = new FormData()
+        formData.append("name", document.getElementById(`material_${material_uuid}_name_input`).value)
+        formData.append("price", document.getElementById(`material_${material_uuid}_price_input`).value)
+        xhr.open("put", url, true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                if(JSON.parse(xhr.responseText)){
+                    responseText = JSON.parse(xhr.responseText)
+                    if(responseText["error"]){
+                        document.getElementById(`error_${material_uuid}`).style.display = "block"
+                    }
+                    else{
+                        window.location.reload()
+                    }
+                }
+            }
+        }
+        
+        xhr.send(formData)
+    }
+
+    let getCookie = (name)=>{
+        var cookieValue = null;
+        if(document.cookie && document.cookie !== ''){
+            var cookies = document.cookie.split(";");
+            for(var i=0; i<cookies.length; i++){
+                var cookie = cookies[i].trim();
+                if(cookie.substring(0, name.length+1)===(name+'=')){
+                cookieValue = decodeURIComponent(cookie.substring(name.length+1));
+                break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+</html>

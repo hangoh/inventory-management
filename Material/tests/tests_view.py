@@ -28,7 +28,7 @@ class TestMaterialViewSet(APITestCase):
         view = MaterialStockViewSet.as_view({"post":"create"})
         force_authenticate(request,self.user)
         store_uuid = Store.objects.get(store_id=1).store_uuid
-        material_uuid = Material.objects.get(material_id=1).material_uuid
+        material_uuid = Material.objects.get(material_id=2).material_uuid
         response = view(request,store_uuid = store_uuid,material_uuid=material_uuid)
         self.assertEqual(response.data["current_capacity"],100)
         self.assertEqual(response.data["max_capacity"],250)

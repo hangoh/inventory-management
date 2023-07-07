@@ -9,15 +9,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id","username"]
 
 
-class UserCreationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["username","password"]
-
-
 class UserAuthSerializer(serializers.ModelSerializer):
     username = serializers.CharField()
-    password=serializers.CharField()
+    password=serializers.CharField(style = {"input_type": "password"})
     class Meta:
         model = User
         fields = ["username","password"]

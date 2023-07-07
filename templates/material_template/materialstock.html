@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Stock</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+
+    .navbarcomponent{
+        display: grid;
+        grid-template-columns: 25% 25% ;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+</style>
+<body>
+    {% load rest_framework %}
+    <h4><a href="{% url 'getstoretemplate' store_uuid=store.store_uuid %}">back</a></h4>
+    <h1>{{store.store_name}}'s Material Stock</h1>
+    <div class="navbarcomponent">
+        <h5><a href="{% url 'creatematerialstocktemplate' store_uuid=store.store_uuid %}">Add New Material Stock</a></h5>
+        <h5><a href="{% url 'restockmaterialstocktemplate' store_uuid=store.store_uuid %}">View Restock Amount and Price</a></h5>
+    </div>
+    {% if material_stock %}
+        {% for stock in material_stock %}
+            <ul >
+                <li>
+                    <div><h4>{{stock.material.name}}</h4></div>
+                    <div id="material_stock_info_{{stock.material_stock_uuid}}">
+                        <p>max capacity: <span id="max_capacity_{{stock.material_stock_uuid}}">{{stock.max_capacity}}</span></p>
+                        <p>current capacity: {{stock.current_capacity}}</p>
+                        <p>capacity_percentage: <span id="capacity_percentage_{{stock.material_stock_uuid}}">{{stock.capacity_percentage}}</span></p>
+                        <button type="button" onclick="edit_max_capacity('{{stock.material_stock_uuid}}')">edit</button>
+                        <button type="button" onclick="delete_material_stock('{{stock.material_stock_uuid}}','{% url "materialstockputdeletetemplate" store_uuid=store.store_uuid material_stock_uuid=stock.material_stock_uuid  %}')" style="color: red;">delete</button>
+                    </div>
+                    <div id="edit_material_stock_form_container_{{stock.material_stock_uuid}}" style="display:none">
+                        <small style="display:none; color: red;" id="error_{{stock.material_stock_uuid}}"></small>
+                        <label for="max_capacity"> max capacity: </label>
+                        <input type="number" name="max_capacity" id="max_capacity_input_{{stock.material_stock_uuid}}" value="{{stock.max_capacity}}" min="{{stock.current_capacity}}">
+                        <div>
+                            <button type="button" onclick="update_max_capacity('{{stock.material_stock_uuid}}', '{{stock.current_capacity}}' , '{% url "materialstockputdeletetemplate" store_uuid=store.store_uuid material_stock_uuid=stock.material_stock_uuid  %}')">update</button>
+                            <button type="button" onclick="cancel_edit_max_capacity('{{stock.material_stock_uuid}}','{{stock.max_capacity}}')" style="color: red;">cancel</button>
+                        </div>
+                    </div> 
+                </li>
+            </ul>
+        {% endfor %}
+    {% else %}
+        <h3>Material Stock Empty, Try Create One</h3>
+    {% endif %}
+</body>
+<script>
+    function edit_max_capacity(material_stock_uuid){
+        document.getElementById(`material_stock_info_${material_stock_uuid}`).style.display = 'none';
+        document.getElementById(`edit_material_stock_form_container_${material_stock_uuid}`).style.display = 'block';
+    }
+
+    function cancel_edit_max_capacity(material_stock_uuid, max_capacity){
+        document.getElementById(`material_stock_info_${material_stock_uuid}`).style.display = 'block';
+        document.getElementById(`edit_material_stock_form_container_${material_stock_uuid}`).style.display = 'none';
+        document.getElementById(`max_capacity_input_${material_stock_uuid}`).value = parseInt(max_capacity);
+        document.getElementById(`error_${material_stock_uuid}`).style.display = 'none';
+    }
+
+    function update_max_capacity(material_stock_uuid, current_capacity, url){
+        var max_capacity = document.getElementById(`max_capacity_input_${material_stock_uuid}`).value
+        document.getElementById(`error_${material_stock_uuid}`).style.display = 'none';
+        var xhr = new XMLHttpRequest();
+        var url = url
+        var formData = new FormData()
+        formData.append("max_capacity", max_capacity)
+        formData.append("current_capacity", current_capacity)
+        xhr.open("put", url, true)
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                if(JSON.parse(xhr.responseText)){
+                    responseText = JSON.parse(xhr.responseText)
+                    if(responseText["error"]){
+                        var error_field = document.getElementById(`error_${material_stock_uuid}`)
+                        error_field.style.display = 'block';
+                        error_field.innerHTML = `Updated Max Capacity Should Not Be Less Than ${current_capacity}`
+                    }else{
+                        document.getElementById(`max_capacity_${material_stock_uuid}`).innerHTML = responseText["max_capacity"]
+                        document.getElementById(`capacity_percentage_${material_stock_uuid}`).innerHTML = responseText["capacity_percentage"]
+                        cancel_edit_max_capacity(material_stock_uuid, responseText["max_capacity"])
+                    }
+    
+                }
+            }
+        }
+        xhr.send(formData)
+    }
+
+    function delete_material_stock(material_stock_uuid, url){
+        var xhr = new XMLHttpRequest
+        var url = url
+        xhr.open("delete", url, true)
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                window.location.reload()
+            }
+        }
+        xhr.send()
+    }
+
+    let getCookie = (name)=>{
+        var cookieValue = null;
+        if(document.cookie && document.cookie !== ''){
+          var cookies = document.cookie.split(";");
+          for(var i=0; i<cookies.length; i++){
+            var cookie = cookies[i].trim();
+            if(cookie.substring(0, name.length+1)===(name+'=')){
+              cookieValue = decodeURIComponent(cookie.substring(name.length+1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+</script>
+</html>

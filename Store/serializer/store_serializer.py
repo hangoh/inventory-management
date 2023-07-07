@@ -34,7 +34,7 @@ class RemainingCapacitySerializer(serializers.ModelSerializer):
             for m in material_list:
                 material_quantity.append(m["quantity"])
                 material = Material.objects.get(material_id = m["ingredient_id"])
-                material_stock_current_capacity.append(MaterialStock.objects.get(material=material,store=self.context.get("store")).current_capacity)
+                material_stock_current_capacity.append(MaterialStock.objects.get(material = material, store = self.context.get("store")).current_capacity)
             quantity = calculate_remaining_product_quantity_service(material_quantity,material_stock_current_capacity)
             return quantity
         except:

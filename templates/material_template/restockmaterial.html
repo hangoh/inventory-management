@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Material Stock</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    .navbarcomponent{
+        display: grid;
+        grid-template-columns: 25% 25% ;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+</style>
+<body>
+    {% load rest_framework %}
+    <h4><a href="{% url 'materialstocktemplate' store_uuid=store_uuid %}">back</a></h4>
+    <h1>Material Restock</h1>
+    <div class="navbarcomponent">
+        <form action="{% url 'restockmaterialstocktemplate' store_uuid=store_uuid %}" method="post">
+            {% csrf_token %}
+            <button type="submit" id="restock_button">Restock</button>
+        </form>
+    </div>
+    
+    <h3>Total Price: {{total_price}}</h3>
+
+    
+    <h3>Material:</h3>
+    {% for m_s in restock_material %}
+        <ul>
+            <li>
+                <h4>{{m_s.material.name}}</h4>
+                {% if m_s.current_quantity%}
+                    <p>current_quantity: {{m_s.current_quantity}}</p>
+                {% endif %}
+                {% if m_s.restocked_amount%}
+                    <p>restocked quantity: {{m_s.restocked_amount}}</p>
+                {% endif %}
+                <p>restock quantity: {{m_s.quantity}}</p>
+                <p>price: {{m_s.price}}</p>
+            </li>
+        </ul>
+    {% endfor %}
+</body>
+<script>
+    function set_restock_button_controller(){
+        if(parseFloat("{{total_price}}")>0){
+            document.getElementById("restock_button").disabled = false;
+        }else{
+            document.getElementById("restock_button").disabled = true;
+        }
+    }
+
+    set_restock_button_controller()
+</script>
+</html>

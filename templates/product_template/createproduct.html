@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Product</title>
+</head>
+<style>
+    div{
+        margin: 10px 0px 10px 0px;
+    }
+    #material_quantity_title_container{
+        display: grid;
+        grid-template-columns: 80% 20%;
+    }
+    button{
+        margin: auto;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+</style>
+<body>
+    {% load rest_framework %}
+    <h4><a href="{% url 'getstoretemplate' store_uuid=store_uuid %}">back</a></h4>
+    <h1>New Product</h1>
+    <form action="{% url 'createproducttemplate' store_uuid=store_uuid%}" method="post" id="product_creation_form">
+        {% csrf_token %}
+        {% if error %}
+            <p style="color: red;">{{error}}</p>
+        {% endif %}
+        <div>
+            <label for="name">Product Name: </label>
+            <input type="text" name="name" id="product_name_input">
+        </div>
+        <div id="material_quantity_title_container">
+            <h3>Material Quantity:</h4>
+            <button type="button" onclick="add_material_quantity_form_input()">+</button>
+        </div>
+        <div>
+            <label for="material_uuid_1">Material: </label>
+            <select name="material_uuid_1">
+                {% for m in material %}
+                    <option value={{m.material_uuid}}>{{m.name}}</option>
+                {% endfor %}
+            </select>
+            <label for="material_uuid_1_quantity">Quantity: </label>
+            <input type="number" name="material_uuid_1_quantity" min="1" value="1">
+        </div>
+        {% if material %}
+            <button type="submit" id="submit_form_button">create</button>
+        {% else %}
+            <button type="submit" id="submit_form_button" disabled>create</button>
+        {% endif %}
+        
+    </form>
+</body>
+<script>
+    var product_name_inputed = false
+    var i = 2
+    const material = [
+    {% for m in material %}
+        {
+            material_uuid: "{{m.material_uuid }}",
+            name: "{{ m.name}}",
+            
+        },
+    {% endfor %}
+    ]
+    
+    function add_material_quantity_form_input(){
+        var div_id = "material_quantity_form_container_"+i
+        var div = document.createElement("div")
+        div.id = div_id
+
+        var label = document.createElement("label")
+        label.htmlFor = "material_uuid_"+i
+        label.innerHTML = "Material: "
+        div.appendChild(label)
+
+        var select = document.createElement("select")
+        select.name = "material_uuid_"+i
+        material.forEach(element=>{
+            var option = document.createElement("option")
+            option.value = element.material_uuid
+            option.innerHTML = element.name
+            select.appendChild(option)
+        })
+        div.appendChild(select)
+        
+        var label2 = document.createElement("label")
+        label2.htmlFor = "material_uuid_"+i+"_quantity"
+        label2.innerHTML = "Quantity: "
+        div.appendChild(label2)
+
+        var input = document.createElement("input")
+        input.type = "number"
+        input.name = "material_uuid_"+i+"_quantity"
+        input.min = "1"
+        input.value = "1"
+        div.appendChild(input)
+
+        var button = document.createElement("button")
+        button.innerHTML = "-"
+        button.type = "button"
+        button.onclick =  function() {
+            document.getElementById(div_id).remove()
+        }
+        div.appendChild(button)
+
+        i+=1
+        document.getElementById("product_creation_form").insertBefore(div, document.getElementById("submit_form_button"))
+    }
+
+
+
+</script>
+</html>

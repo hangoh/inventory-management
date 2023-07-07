@@ -10,11 +10,14 @@ def get_user(request):
     return user
 
 def create_user(serializer):
-    user = User.objects.create_user(username = serializer.data["username"], password = serializer.data["password"])
-    if(user): 
-        token = Token.objects.create(user=user)
-        return token
-    return False
+    try:
+        user = User.objects.create_user(username = serializer.data["username"], password = serializer.data["password"])
+        if(user): 
+            token = Token.objects.create(user=user)
+            return token
+        return False
+    except:
+        return False
 
 def sign_out_user(user):
     if user:

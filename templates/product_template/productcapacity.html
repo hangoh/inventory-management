@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Capacity</title>
+</head>
+<style>
+    .navbarcomponent{
+        display: grid;
+        grid-template-columns: 25% 25% ;
+    }
+    .error{
+        color: red;
+        display:none;
+    }
+    .product_capacity_container{
+        display: flex;
+        flex-direction: row;
+    }
+    a{
+        color:blue;
+        cursor: pointer;
+    }
+</style>
+<body>
+    {% load rest_framework %}
+    <h4><a href="{% url 'getstoretemplate' store_uuid=store_uuid %}">back</a></h4>
+    <h1>Product Capacity</h1>
+    {% if error %}
+        <h3>{{error}}</h3>
+    {% elif product %}
+        {% for p in product %}
+            <ul>
+                <li>
+                    <h4>Product: {{p.name}}</h4>
+                    <div class="product_capacity_container">
+                        <p>Able to Produce Quantity: </p>
+                        <p id="quantity_{{p.product_uuid}}">{{p.quantity}}</p>
+                    </div>
+                    <p><small class="error" id="error_{{p.product_uuid}}">Fail to update sales For {{p.name}} due to insufficient material</small></p>
+                    <label for="quantity">Sold: </label>
+                    <input type="number" name="quantity" id="material_quantity_{{p.product_uuid}}" min="1" value="1">
+                    <button type="button" onclick="update_sales('{{p.product_uuid}}')">update</button>
+
+                </li>
+            </ul>
+        {% endfor %}
+    {% endif %}
+   
+</body>
+<script>
+    function update_sales(product_uuid){
+        var xhr = new XMLHttpRequest();
+        var url = "{% url 'salestemplate' store_uuid=store_uuid %}"
+        var formData = new FormData()
+        var data = [{
+            "uuid": product_uuid,
+            "quantity": parseInt(document.getElementById(`material_quantity_${product_uuid}`).value)
+        }]
+        formData.append("products", JSON.stringify(data))
+        xhr.open("POST", url, true)
+        xhr.setRequestHeader('X-CSRFToken', getCookie("csrftoken"))
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                if(JSON.parse(xhr.responseText)){
+                    responseText = JSON.parse(xhr.responseText)
+                    console.log(responseText)
+                    if(responseText["error"][0]){
+                        document.getElementById(`material_quantity_${product_uuid}`).value = "1"
+                        document.getElementById(`error_${product_uuid}`).style.display = "grid"
+                    }
+                    if(responseText["sale"]){
+                        window.location.reload()
+                    }
+                }
+            }
+        }
+        errors_field = document.getElementsByClassName('error')
+        for(var i = 0; i < errors_field.length; i++){
+            errors_field[i].style.display = "none"
+        }
+        xhr.send(formData)
+    }
+
+    let getCookie = (name)=>{
+        var cookieValue = null;
+        if(document.cookie && document.cookie !== ''){
+          var cookies = document.cookie.split(";");
+          for(var i=0; i<cookies.length; i++){
+            var cookie = cookies[i].trim();
+            if(cookie.substring(0, name.length+1)===(name+'=')){
+              cookieValue = decodeURIComponent(cookie.substring(name.length+1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+</script>
+</html>

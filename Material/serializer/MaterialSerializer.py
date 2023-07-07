@@ -8,7 +8,7 @@ from Store.serializer.store_serializer import StoreSerializer,ProductSerializer
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Material
-        fields = ["material_id","material_uuid", "price", "name"]
+        fields = ["material_id","material_uuid", "name", "price"]
 
 
 class MaterialStockSerializer(serializers.ModelSerializer):

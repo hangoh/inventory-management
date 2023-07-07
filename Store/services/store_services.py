@@ -1,7 +1,7 @@
-import uuid
+import json
 
 from Store.models import Store,Product
-from Material.models import Material,MaterialQuantity, MaterialStock
+from Material.models import MaterialQuantity, MaterialStock
 """
 Store Services
 """
@@ -26,6 +26,7 @@ def get_store_service(user,uuid):
     
 def create_store_service(request):
     try:
+        print(request.data)
         store = Store.objects.create(user = request.user, store_name = request.data['store_name'])
         return store
     except:
@@ -148,6 +149,8 @@ def calculate_item_sold(request, quantity, store_uuid, product_uuid):
 # service to handle request to update material stock according to sale
 def product_sales_services(request, store_uuid):
     products = request.data['products']
+    if type(products) == str:
+        products = json.loads(products)
     response = {"sale":[],"error":[]}
     # loop through all the product from POST request to update each material stock accordingly
     for product in products:
@@ -158,4 +161,19 @@ def product_sales_services(request, store_uuid):
         else:
             response["sale"].append(result)
     return response
+
+# check if there are duplicate identical material_uuid in the array as a product is not allowed to have more than 1 material quantity of the same material
+def check_material_quantity_duplicate(request, request_material_quantity_array):
+    # the array structure will be dict key array ( exp : ["material_uuid_1", ""material_uuid_1_qunatity"...]) to get value from request.data, index of odd will be the uuid 
+    # return true if there are duplicate identical material
+    uuid_array=[]
+    index = 0
+    #loop through the array to extract uuid, than remove the next element from the array which is the quantity
+    for i in range(int(len(request_material_quantity_array)/2)):
+        uuid_array.append(request.data[request_material_quantity_array[index]])
+        index += 2
+    for uuid in uuid_array:
+        if uuid_array.count(uuid) != 1:
+            return True
+    return False
 
